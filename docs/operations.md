@@ -6,7 +6,7 @@
 
 PRをmainへマージすると `Verify slime trial` が単体・実DB・ブラウザ・公開成果物を検証し、成功後に `Publish GitHub Pages` が同じSHAをビルドして公開します。失敗した検証では配備を開始しません。Pagesの配信元はGitHub Actionsです。公開HTMLの `chameleonjp-commit` と `/release.json` から実際に配備されたSHAを確認できます。
 
-`/suraimusaiban/` でのサブディレクトリ配信を標準にしています。正式URL、OGP、X投稿、保存画像は同じURLを使います。SNS画像は `public/social-card.png`、公開接続情報と版は `config/production.json` です。画像を変えた場合もPRをマージして反映します。
+`/suraimusaiban/` でのサブディレクトリ配信を標準にしています。正式URL、OGP、X投稿、保存画像は同じURLを使います。SNS画像は `public/social-card-v2.png`、公開接続情報と版は `config/production.json` です。画像を変えた場合もPRをマージして反映します。SNS側のキャッシュを避けるため、新しい画像には別名を付け、`index.html` のOGP・Twitter画像URLと公開検査スクリプトも更新します。
 
 ## 共有Supabaseの保存項目
 
