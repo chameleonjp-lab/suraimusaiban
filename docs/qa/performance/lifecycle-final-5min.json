@@ -1,0 +1,1142 @@
+{
+  "status": "complete",
+  "engine": "156.0.8078.4",
+  "viewport": "390x844",
+  "renderer": "SwiftShader software WebGL",
+  "origin": "http://127.0.0.1:5173/",
+  "sourceLabel": "final owner/motion fix + batched courtroom (dirty branch)",
+  "sourceContext": {
+    "url": "http://127.0.0.1:5173/",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+    "reducedMotion": false
+  },
+  "sourceFilesAtStart": {
+    "src/app.ts": "5598e62d4d99b421fddb369b658ac027deee37341806cbb94c904ac1dfd5aba6",
+    "src/scene/index.ts": "284ab2a0e7302d54017f4246779c2c02bb4063ea1848e0e95ffa5561f1319a7c",
+    "src/scene/courtroom.ts": "cf60716922368c196c715e12af9082fbfda8fd9e7bd9169239333ef886b5ebe2",
+    "src/scene/slime.ts": "599a2b43d7c0fa38724163ba6a825495bbc7fb67fe128293652dbcf41c4b39db",
+    "src/features/status/status-feed.ts": "acf3821f7416317762a4eb06e9431618b2a460e09d3925d2856cc6a139a26ef0",
+    "src/features/status/status-view.ts": "4d1cdbc3c21c3cbbcc0a5ec7f08cf62dc60e8e1fb144e8437be33db473183ef5"
+  },
+  "sourceFilesAtSample": {
+    "src/app.ts": "5598e62d4d99b421fddb369b658ac027deee37341806cbb94c904ac1dfd5aba6",
+    "src/scene/index.ts": "284ab2a0e7302d54017f4246779c2c02bb4063ea1848e0e95ffa5561f1319a7c",
+    "src/scene/courtroom.ts": "cf60716922368c196c715e12af9082fbfda8fd9e7bd9169239333ef886b5ebe2",
+    "src/scene/slime.ts": "599a2b43d7c0fa38724163ba6a825495bbc7fb67fe128293652dbcf41c4b39db",
+    "src/features/status/status-feed.ts": "acf3821f7416317762a4eb06e9431618b2a460e09d3925d2856cc6a139a26ef0",
+    "src/features/status/status-view.ts": "4d1cdbc3c21c3cbbcc0a5ec7f08cf62dc60e8e1fb144e8437be33db473183ef5"
+  },
+  "condition": "Managed Linux x86_64; headless Chromium; SwiftShader software WebGL; 390x844 CSS px; connected local Supabase; HMR disabled; no ballot submission",
+  "backendConfigured": true,
+  "instrumentation": {
+    "resources": "Live handles observed through create/delete Buffer, Texture and Program wrappers; sets are cleared when explicit WEBGL_lose_context.loseContext is called.",
+    "limitations": "These counters are not GPU driver memory measurements or proof that the driver has reclaimed memory. The observer retains per-context counters. JS heap is sampled without forcing garbage collection.",
+    "timing": "Real monotonic elapsed time; no clock acceleration. Each route is sampled after up to 4500ms. The final route may have a shorter observation window.",
+    "routes": "trial -> status -> home; app navigation only, no ballot submission or result injection."
+  },
+  "startedAt": "2026-10-23T13:24:37.488Z",
+  "durationTargetMs": 300000,
+  "durationMs": 300008,
+  "submitRequests": 0,
+  "navigations": [
+    {
+      "at": "2026-10-23T13:24:37.191Z",
+      "url": "http://127.0.0.1:5173/"
+    },
+    {
+      "at": "2026-10-23T13:24:38.041Z",
+      "url": "http://127.0.0.1:5173/#trial"
+    },
+    {
+      "at": "2026-10-23T13:24:43.401Z",
+      "url": "http://127.0.0.1:5173/#status"
+    },
+    {
+      "at": "2026-10-23T13:24:47.927Z",
+      "url": "http://127.0.0.1:5173/"
+    },
+    {
+      "at": "2026-10-23T13:24:52.868Z",
+      "url": "http://127.0.0.1:5173/#trial"
+    },
+    {
+      "at": "2026-10-23T13:24:58.036Z",
+      "url": "http://127.0.0.1:5173/#status"
+    },
+    {
+      "at": "2026-10-23T13:25:02.565Z",
+      "url": "http://127.0.0.1:5173/"
+    },
+    {
+      "at": "2026-10-23T13:25:07.151Z",
+      "url": "http://127.0.0.1:5173/#trial"
+    },
+    {
+      "at": "2026-10-23T13:25:12.405Z",
+      "url": "http://127.0.0.1:5173/#status"
+    },
+    {
+      "at": "2026-10-23T13:25:16.914Z",
+      "url": "http://127.0.0.1:5173/"
+    },
+    {
+      "at": "2026-10-23T13:25:21.580Z",
+      "url": "http://127.0.0.1:5173/#trial"
+    },
+    {
+      "at": "2026-10-23T13:25:26.775Z",
+      "url": "http://127.0.0.1:5173/#status"
+    },
+    {
+      "at": "2026-10-23T13:25:31.286Z",
+      "url": "http://127.0.0.1:5173/"
+    },
+    {
+      "at": "2026-10-23T13:25:35.928Z",
+      "url": "http://127.0.0.1:5173/#trial"
+    },
+    {
+      "at": "2026-10-23T13:25:41.137Z",
+      "url": "http://127.0.0.1:5173/#status"
+    },
+    {
+      "at": "2026-10-23T13:25:45.646Z",
+      "url": "http://127.0.0.1:5173/"
+    },
+    {
+      "at": "2026-10-23T13:25:50.288Z",
+      "url": "http://127.0.0.1:5173/#trial"
+    },
+    {
+      "at": "2026-10-23T13:25:55.523Z",
+      "url": "http://127.0.0.1:5173/#status"
+    },
+    {
+      "at": "2026-10-23T13:26:00.032Z",
+      "url": "http://127.0.0.1:5173/"
+    },
+    {
+      "at": "2026-10-23T13:26:04.661Z",
+      "url": "http://127.0.0.1:5173/#trial"
+    },
+    {
+      "at": "2026-10-23T13:26:09.935Z",
+      "url": "http://127.0.0.1:5173/#status"
+    },
+    {
+      "at": "2026-10-23T13:26:14.446Z",
+      "url": "http://127.0.0.1:5173/"
+    },
+    {
+      "at": "2026-10-23T13:26:19.042Z",
+      "url": "http://127.0.0.1:5173/#trial"
+    },
+    {
+      "at": "2026-10-23T13:26:24.286Z",
+      "url": "http://127.0.0.1:5173/#status"
+    },
+    {
+      "at": "2026-10-23T13:26:28.795Z",
+      "url": "http://127.0.0.1:5173/"
+    },
+    {
+      "at": "2026-10-23T13:26:33.394Z",
+      "url": "http://127.0.0.1:5173/#trial"
+    },
+    {
+      "at": "2026-10-23T13:26:38.663Z",
+      "url": "http://127.0.0.1:5173/#status"
+    },
+    {
+      "at": "2026-10-23T13:26:43.176Z",
+      "url": "http://127.0.0.1:5173/"
+    },
+    {
+      "at": "2026-10-23T13:26:47.794Z",
+      "url": "http://127.0.0.1:5173/#trial"
+    },
+    {
+      "at": "2026-10-23T13:26:53.092Z",
+      "url": "http://127.0.0.1:5173/#status"
+    },
+    {
+      "at": "2026-10-23T13:26:57.604Z",
+      "url": "http://127.0.0.1:5173/"
+    },
+    {
+      "at": "2026-10-23T13:27:02.198Z",
+      "url": "http://127.0.0.1:5173/#trial"
+    },
+    {
+      "at": "2026-10-23T13:27:07.521Z",
+      "url": "http://127.0.0.1:5173/#status"
+    },
+    {
+      "at": "2026-10-23T13:27:12.029Z",
+      "url": "http://127.0.0.1:5173/"
+    },
+    {
+      "at": "2026-10-23T13:27:16.706Z",
+      "url": "http://127.0.0.1:5173/#trial"
+    },
+    {
+      "at": "2026-10-23T13:27:22.002Z",
+      "url": "http://127.0.0.1:5173/#status"
+    },
+    {
+      "at": "2026-10-23T13:27:26.513Z",
+      "url": "http://127.0.0.1:5173/"
+    },
+    {
+      "at": "2026-10-23T13:27:31.404Z",
+      "url": "http://127.0.0.1:5173/#trial"
+    },
+    {
+      "at": "2026-10-23T13:27:36.625Z",
+      "url": "http://127.0.0.1:5173/#status"
+    },
+    {
+      "at": "2026-10-23T13:27:41.137Z",
+      "url": "http://127.0.0.1:5173/"
+    },
+    {
+      "at": "2026-10-23T13:27:45.859Z",
+      "url": "http://127.0.0.1:5173/#trial"
+    },
+    {
+      "at": "2026-10-23T13:27:51.025Z",
+      "url": "http://127.0.0.1:5173/#status"
+    },
+    {
+      "at": "2026-10-23T13:27:55.533Z",
+      "url": "http://127.0.0.1:5173/"
+    },
+    {
+      "at": "2026-10-23T13:28:00.147Z",
+      "url": "http://127.0.0.1:5173/#trial"
+    },
+    {
+      "at": "2026-10-23T13:28:05.338Z",
+      "url": "http://127.0.0.1:5173/#status"
+    },
+    {
+      "at": "2026-10-23T13:28:09.866Z",
+      "url": "http://127.0.0.1:5173/"
+    },
+    {
+      "at": "2026-10-23T13:28:14.514Z",
+      "url": "http://127.0.0.1:5173/#trial"
+    },
+    {
+      "at": "2026-10-23T13:28:19.915Z",
+      "url": "http://127.0.0.1:5173/#status"
+    },
+    {
+      "at": "2026-10-23T13:28:24.422Z",
+      "url": "http://127.0.0.1:5173/"
+    },
+    {
+      "at": "2026-10-23T13:28:29.028Z",
+      "url": "http://127.0.0.1:5173/#trial"
+    },
+    {
+      "at": "2026-10-23T13:28:34.283Z",
+      "url": "http://127.0.0.1:5173/#status"
+    },
+    {
+      "at": "2026-10-23T13:28:38.799Z",
+      "url": "http://127.0.0.1:5173/"
+    },
+    {
+      "at": "2026-10-23T13:28:43.408Z",
+      "url": "http://127.0.0.1:5173/#trial"
+    },
+    {
+      "at": "2026-10-23T13:28:48.749Z",
+      "url": "http://127.0.0.1:5173/#status"
+    },
+    {
+      "at": "2026-10-23T13:28:53.264Z",
+      "url": "http://127.0.0.1:5173/"
+    },
+    {
+      "at": "2026-10-23T13:28:58.085Z",
+      "url": "http://127.0.0.1:5173/#trial"
+    },
+    {
+      "at": "2026-10-23T13:29:03.110Z",
+      "url": "http://127.0.0.1:5173/#status"
+    },
+    {
+      "at": "2026-10-23T13:29:07.623Z",
+      "url": "http://127.0.0.1:5173/"
+    },
+    {
+      "at": "2026-10-23T13:29:12.337Z",
+      "url": "http://127.0.0.1:5173/#trial"
+    },
+    {
+      "at": "2026-10-23T13:29:17.703Z",
+      "url": "http://127.0.0.1:5173/#status"
+    },
+    {
+      "at": "2026-10-23T13:29:22.211Z",
+      "url": "http://127.0.0.1:5173/"
+    },
+    {
+      "at": "2026-10-23T13:29:26.863Z",
+      "url": "http://127.0.0.1:5173/#trial"
+    },
+    {
+      "at": "2026-10-23T13:29:32.213Z",
+      "url": "http://127.0.0.1:5173/#status"
+    },
+    {
+      "at": "2026-10-23T13:29:36.728Z",
+      "url": "http://127.0.0.1:5173/"
+    }
+  ],
+  "samples": [
+    {
+      "elapsedMs": 5129,
+      "route": "trial",
+      "contexts": 2,
+      "explicitContextLosses": 1,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 84,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 14687276
+    },
+    {
+      "elapsedMs": 10433,
+      "route": "status",
+      "contexts": 2,
+      "explicitContextLosses": 2,
+      "buffers": 0,
+      "textures": 0,
+      "programs": 0,
+      "nodes": 1205,
+      "sceneStates": [],
+      "heap": 15304928
+    },
+    {
+      "elapsedMs": 15030,
+      "route": "home",
+      "contexts": 3,
+      "explicitContextLosses": 2,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 79,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 13668104
+    },
+    {
+      "elapsedMs": 19941,
+      "route": "trial",
+      "contexts": 4,
+      "explicitContextLosses": 3,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 84,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 14518580
+    },
+    {
+      "elapsedMs": 25075,
+      "route": "status",
+      "contexts": 4,
+      "explicitContextLosses": 4,
+      "buffers": 0,
+      "textures": 0,
+      "programs": 0,
+      "nodes": 1205,
+      "sceneStates": [],
+      "heap": 14837936
+    },
+    {
+      "elapsedMs": 29649,
+      "route": "home",
+      "contexts": 5,
+      "explicitContextLosses": 4,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 79,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 15076668
+    },
+    {
+      "elapsedMs": 34213,
+      "route": "trial",
+      "contexts": 6,
+      "explicitContextLosses": 5,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 84,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 15535536
+    },
+    {
+      "elapsedMs": 39424,
+      "route": "status",
+      "contexts": 6,
+      "explicitContextLosses": 6,
+      "buffers": 0,
+      "textures": 0,
+      "programs": 0,
+      "nodes": 1205,
+      "sceneStates": [],
+      "heap": 10691856
+    },
+    {
+      "elapsedMs": 44036,
+      "route": "home",
+      "contexts": 7,
+      "explicitContextLosses": 6,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 79,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 12822568
+    },
+    {
+      "elapsedMs": 48693,
+      "route": "trial",
+      "contexts": 8,
+      "explicitContextLosses": 7,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 84,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 14688836
+    },
+    {
+      "elapsedMs": 53796,
+      "route": "status",
+      "contexts": 8,
+      "explicitContextLosses": 8,
+      "buffers": 0,
+      "textures": 0,
+      "programs": 0,
+      "nodes": 1205,
+      "sceneStates": [],
+      "heap": 15004956
+    },
+    {
+      "elapsedMs": 58376,
+      "route": "home",
+      "contexts": 9,
+      "explicitContextLosses": 8,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 79,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 13466932
+    },
+    {
+      "elapsedMs": 63005,
+      "route": "trial",
+      "contexts": 10,
+      "explicitContextLosses": 9,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 84,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 12997972
+    },
+    {
+      "elapsedMs": 68156,
+      "route": "status",
+      "contexts": 10,
+      "explicitContextLosses": 10,
+      "buffers": 0,
+      "textures": 0,
+      "programs": 0,
+      "nodes": 1205,
+      "sceneStates": [],
+      "heap": 13351908
+    },
+    {
+      "elapsedMs": 72743,
+      "route": "home",
+      "contexts": 11,
+      "explicitContextLosses": 10,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 79,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 14294356
+    },
+    {
+      "elapsedMs": 77372,
+      "route": "trial",
+      "contexts": 12,
+      "explicitContextLosses": 11,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 84,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 15624744
+    },
+    {
+      "elapsedMs": 82542,
+      "route": "status",
+      "contexts": 12,
+      "explicitContextLosses": 12,
+      "buffers": 0,
+      "textures": 0,
+      "programs": 0,
+      "nodes": 1205,
+      "sceneStates": [],
+      "heap": 11481792
+    },
+    {
+      "elapsedMs": 87129,
+      "route": "home",
+      "contexts": 13,
+      "explicitContextLosses": 12,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 79,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 12600404
+    },
+    {
+      "elapsedMs": 91731,
+      "route": "trial",
+      "contexts": 14,
+      "explicitContextLosses": 13,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 84,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 12460056
+    },
+    {
+      "elapsedMs": 96953,
+      "route": "status",
+      "contexts": 14,
+      "explicitContextLosses": 14,
+      "buffers": 0,
+      "textures": 0,
+      "programs": 0,
+      "nodes": 1205,
+      "sceneStates": [],
+      "heap": 12817540
+    },
+    {
+      "elapsedMs": 101528,
+      "route": "home",
+      "contexts": 15,
+      "explicitContextLosses": 14,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 79,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 12736724
+    },
+    {
+      "elapsedMs": 106124,
+      "route": "trial",
+      "contexts": 16,
+      "explicitContextLosses": 15,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 84,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 13266396
+    },
+    {
+      "elapsedMs": 111305,
+      "route": "status",
+      "contexts": 16,
+      "explicitContextLosses": 16,
+      "buffers": 0,
+      "textures": 0,
+      "programs": 0,
+      "nodes": 1205,
+      "sceneStates": [],
+      "heap": 13577972
+    },
+    {
+      "elapsedMs": 115881,
+      "route": "home",
+      "contexts": 17,
+      "explicitContextLosses": 16,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 79,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 14374636
+    },
+    {
+      "elapsedMs": 120473,
+      "route": "trial",
+      "contexts": 18,
+      "explicitContextLosses": 17,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 84,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 12315996
+    },
+    {
+      "elapsedMs": 125684,
+      "route": "status",
+      "contexts": 18,
+      "explicitContextLosses": 18,
+      "buffers": 0,
+      "textures": 0,
+      "programs": 0,
+      "nodes": 1205,
+      "sceneStates": [],
+      "heap": 12762624
+    },
+    {
+      "elapsedMs": 130286,
+      "route": "home",
+      "contexts": 19,
+      "explicitContextLosses": 18,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 79,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 12495876
+    },
+    {
+      "elapsedMs": 134887,
+      "route": "trial",
+      "contexts": 20,
+      "explicitContextLosses": 19,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 84,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 13630536
+    },
+    {
+      "elapsedMs": 140112,
+      "route": "status",
+      "contexts": 20,
+      "explicitContextLosses": 20,
+      "buffers": 0,
+      "textures": 0,
+      "programs": 0,
+      "nodes": 1205,
+      "sceneStates": [],
+      "heap": 13955080
+    },
+    {
+      "elapsedMs": 144686,
+      "route": "home",
+      "contexts": 21,
+      "explicitContextLosses": 20,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 79,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 14423852
+    },
+    {
+      "elapsedMs": 149280,
+      "route": "trial",
+      "contexts": 22,
+      "explicitContextLosses": 21,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 84,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 16897788
+    },
+    {
+      "elapsedMs": 154539,
+      "route": "status",
+      "contexts": 22,
+      "explicitContextLosses": 22,
+      "buffers": 0,
+      "textures": 0,
+      "programs": 0,
+      "nodes": 1205,
+      "sceneStates": [],
+      "heap": 11708372
+    },
+    {
+      "elapsedMs": 159165,
+      "route": "home",
+      "contexts": 23,
+      "explicitContextLosses": 22,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 79,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 13211392
+    },
+    {
+      "elapsedMs": 163797,
+      "route": "trial",
+      "contexts": 24,
+      "explicitContextLosses": 23,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 84,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 12583416
+    },
+    {
+      "elapsedMs": 169023,
+      "route": "status",
+      "contexts": 24,
+      "explicitContextLosses": 24,
+      "buffers": 0,
+      "textures": 0,
+      "programs": 0,
+      "nodes": 1205,
+      "sceneStates": [],
+      "heap": 12919292
+    },
+    {
+      "elapsedMs": 173593,
+      "route": "home",
+      "contexts": 25,
+      "explicitContextLosses": 24,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 79,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 12859192
+    },
+    {
+      "elapsedMs": 178536,
+      "route": "trial",
+      "contexts": 26,
+      "explicitContextLosses": 25,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 84,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 13937988
+    },
+    {
+      "elapsedMs": 183647,
+      "route": "status",
+      "contexts": 26,
+      "explicitContextLosses": 26,
+      "buffers": 0,
+      "textures": 0,
+      "programs": 0,
+      "nodes": 1205,
+      "sceneStates": [],
+      "heap": 14282176
+    },
+    {
+      "elapsedMs": 188222,
+      "route": "home",
+      "contexts": 27,
+      "explicitContextLosses": 26,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 79,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 17089964
+    },
+    {
+      "elapsedMs": 192974,
+      "route": "trial",
+      "contexts": 28,
+      "explicitContextLosses": 27,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 84,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 16775840
+    },
+    {
+      "elapsedMs": 198043,
+      "route": "status",
+      "contexts": 28,
+      "explicitContextLosses": 28,
+      "buffers": 0,
+      "textures": 0,
+      "programs": 0,
+      "nodes": 1205,
+      "sceneStates": [],
+      "heap": 17119500
+    },
+    {
+      "elapsedMs": 202604,
+      "route": "home",
+      "contexts": 29,
+      "explicitContextLosses": 28,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 79,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 13293452
+    },
+    {
+      "elapsedMs": 207243,
+      "route": "trial",
+      "contexts": 30,
+      "explicitContextLosses": 29,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 84,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 14018276
+    },
+    {
+      "elapsedMs": 212375,
+      "route": "status",
+      "contexts": 30,
+      "explicitContextLosses": 30,
+      "buffers": 0,
+      "textures": 0,
+      "programs": 0,
+      "nodes": 1205,
+      "sceneStates": [],
+      "heap": 11322320
+    },
+    {
+      "elapsedMs": 216983,
+      "route": "home",
+      "contexts": 31,
+      "explicitContextLosses": 30,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 79,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 13401524
+    },
+    {
+      "elapsedMs": 221633,
+      "route": "trial",
+      "contexts": 32,
+      "explicitContextLosses": 31,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 84,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 16634404
+    },
+    {
+      "elapsedMs": 226932,
+      "route": "status",
+      "contexts": 32,
+      "explicitContextLosses": 32,
+      "buffers": 0,
+      "textures": 0,
+      "programs": 0,
+      "nodes": 1205,
+      "sceneStates": [],
+      "heap": 17001748
+    },
+    {
+      "elapsedMs": 231522,
+      "route": "home",
+      "contexts": 33,
+      "explicitContextLosses": 32,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 79,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 13164588
+    },
+    {
+      "elapsedMs": 236103,
+      "route": "trial",
+      "contexts": 34,
+      "explicitContextLosses": 33,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 84,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 13850544
+    },
+    {
+      "elapsedMs": 241305,
+      "route": "status",
+      "contexts": 34,
+      "explicitContextLosses": 34,
+      "buffers": 0,
+      "textures": 0,
+      "programs": 0,
+      "nodes": 1205,
+      "sceneStates": [],
+      "heap": 14187064
+    },
+    {
+      "elapsedMs": 245903,
+      "route": "home",
+      "contexts": 35,
+      "explicitContextLosses": 34,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 79,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 14605992
+    },
+    {
+      "elapsedMs": 250477,
+      "route": "trial",
+      "contexts": 36,
+      "explicitContextLosses": 35,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 84,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 16156704
+    },
+    {
+      "elapsedMs": 255774,
+      "route": "status",
+      "contexts": 36,
+      "explicitContextLosses": 36,
+      "buffers": 0,
+      "textures": 0,
+      "programs": 0,
+      "nodes": 1205,
+      "sceneStates": [],
+      "heap": 11624296
+    },
+    {
+      "elapsedMs": 260370,
+      "route": "home",
+      "contexts": 37,
+      "explicitContextLosses": 36,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 79,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 12716348
+    },
+    {
+      "elapsedMs": 265178,
+      "route": "trial",
+      "contexts": 38,
+      "explicitContextLosses": 37,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 84,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 12681620
+    },
+    {
+      "elapsedMs": 270133,
+      "route": "status",
+      "contexts": 38,
+      "explicitContextLosses": 38,
+      "buffers": 0,
+      "textures": 0,
+      "programs": 0,
+      "nodes": 1205,
+      "sceneStates": [],
+      "heap": 13043572
+    },
+    {
+      "elapsedMs": 274712,
+      "route": "home",
+      "contexts": 39,
+      "explicitContextLosses": 38,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 79,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 13358236
+    },
+    {
+      "elapsedMs": 279473,
+      "route": "trial",
+      "contexts": 40,
+      "explicitContextLosses": 39,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 84,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 13129292
+    },
+    {
+      "elapsedMs": 284721,
+      "route": "status",
+      "contexts": 40,
+      "explicitContextLosses": 40,
+      "buffers": 0,
+      "textures": 0,
+      "programs": 0,
+      "nodes": 1205,
+      "sceneStates": [],
+      "heap": 13491552
+    },
+    {
+      "elapsedMs": 289331,
+      "route": "home",
+      "contexts": 41,
+      "explicitContextLosses": 40,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 79,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 14695676
+    },
+    {
+      "elapsedMs": 293975,
+      "route": "trial",
+      "contexts": 42,
+      "explicitContextLosses": 41,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 84,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 14341228
+    },
+    {
+      "elapsedMs": 299236,
+      "route": "status",
+      "contexts": 42,
+      "explicitContextLosses": 42,
+      "buffers": 0,
+      "textures": 0,
+      "programs": 0,
+      "nodes": 1205,
+      "sceneStates": [],
+      "heap": 11739136
+    },
+    {
+      "elapsedMs": 300008,
+      "route": "home",
+      "contexts": 43,
+      "explicitContextLosses": 42,
+      "buffers": 103,
+      "textures": 5,
+      "programs": 6,
+      "nodes": 79,
+      "sceneStates": [
+        "active"
+      ],
+      "heap": 12805608
+    }
+  ],
+  "errors": []
+}

@@ -13,14 +13,14 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:db": "vitest run --config vitest.db.config.ts",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:webkit": "playwright test --config=playwright.webkit.config.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.118.0",
     "three": "0.186.1"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "0.5.11",
     "@playwright/test": "1.64.1",
     "@types/node": "26.6.5",
     "@types/pg": "8.23.1",

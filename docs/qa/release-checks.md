@@ -15,11 +15,11 @@
 | 画面 | [縦横・文字拡大](courtroom.md)。390×844、844×390、desktop、200%文字。本文4.5:1、44px操作領域、3Dなしでも操作。 |
 | 文書・素材 | `python3 scripts/validate-docs.py`：参照原本のhash、本文、判決表、リンクを検証。 |
 
-最終の型検査とproduction buildは成功しました。単体80件、実DB14件＋publication設定2件、Chromium全体25件＋実シーン停止の追加1件が合格しています。接続済みブラウザ試験のskipは0件です。長時間測定とWebKitの最終集計は実行終了後に追記します。
+最終の型検査とproduction buildは成功しました。単体80件、実DB16件、Chromium26件がGitHub Actionsでまとめて合格しています。接続済みブラウザ試験のskipは0件です。Linux WebKitの最終11件も合格（2.0分）。実DBの通し操作6件・参加者/動作状態3件・PNG/共有2件をまとめて再実行しました。長時間の[観測記録](performance/README.md)も保存しました。変更前の未接続プレビューを30分14.816秒（360標本）、最終ソースを接続済みで5分（63標本）観測し、どちらもpage error 0件、画面ごとの資源数は一定でした。前者は初期HMRを含むため、最終ソースの連続30分合格とはしていません。
 
 [独立レビュー](implementation-review.md)は致命的0件・重要2件・軽微1件。重要2件（匿名ID切替時の所有者・認証固定、動きの停止状態の維持）を修正し、回帰試験が通っています。軽微な「最新状況の更新で詳細の開閉・フォーカスが失われる」点は延期しています。
 
-ビルドのJavaScriptは約871KB（gzip約232KB）で、Viteの500KBチャンク警告が残ります。外部3D素材・実行時文章生成はありません。CIはローカルと同じDB/Auth・単体・Chromium試験を実行する構成です。
+ビルドのJavaScriptは約871KB（gzip約232KB）で、Viteの500KBチャンク警告が残ります。外部3D素材・実行時文章生成はありません。CIはローカルと同じDB/Auth・単体・Chromium試験を実行する構成です。公開bundleに検証用署名秘密文字列・DBパスワード・管理キーの変数名がないことを確認し、production依存の `npm audit --omit=dev --audit-level=moderate` は脆弱性0件でした。
 
 ## 実見した成果物
 
@@ -32,8 +32,22 @@ PNGは不透明、人物傾向/比較1080×1350、判決記録1080×1920。元�
 ## 公開前に残る確認
 
 - 物理iPhone Safari、Android Chrome、macOS Safari、VoiceOverでの操作。Linux Chromium/WebKitと画面模擬で実機合格とはしません。
-- 実機GPUで安定30fps以上/p95 33.3ms以下。SwiftShaderはソフトウェア描画であり、実機性能の代替測定ではありません。
+- 最終ソースの途切れない30分観測、および実機GPUで安定30fps以上/p95 33.3ms以下。SwiftShaderはソフトウェア描画であり、実機性能の代替測定ではありません。
 - 本番プロジェクト、公開URL、CAPTCHAプロバイダ/ウィジェット、Auth作成制限、Realtime実配信、バックアップ/復元を含む[運用手順](../operations.md)。
 - 実際のOS共有シートからXへの画像受け渡し。非対応時のPNG保存・コピーと、共有取消処理は検証済みです。
 
 初期のローカル同時書込測定を公開後の容量保証にはしません。公開準備が整うまではレビュー用PRとローカルプレビューで確認します。
+
+## 最終ブラウザコマンド
+
+```sh
+PLAYWRIGHT_BROWSERS_PATH=/tmp/pw-browsers E2E_BASE_URL=http://127.0.0.1:5173 npx playwright test
+```
+
+Chromium全体は25件・1.2分、追加の実シーン停止試験は1件・4.7秒。最終的なsuiteには26件あります。WebKitはiPhone13の画面設定・Linux WebKitで `journey` / `submit` / `accessibility` / `app-lifecycle` / `share` の11件を実行しました。環境固有の不足ライブラリを一時ディレクトリへ展開したrunnerで、実機Safariとは異なります。再実行用の `playwright.webkit.config.ts` を保存しています。一般環境では `npx playwright install --with-deps webkit` の後に `npm run test:e2e:webkit` を実行します。既存サーバーを使う場合は `E2E_BASE_URL` を指定します。この管理環境では不足ライブラリ用の `PLAYWRIGHT_WEBKIT_EXECUTABLE_PATH=/tmp/slime-webkit-apt/run-webkit.sh` と `PLAYWRIGHT_BROWSERS_PATH=/tmp/pw-browsers` を追加しましたが、一般環境ではどちらも不要です。
+
+## CI
+
+[初回のGitHub Actions実行](https://github.com/chameleonjp-lab/suraimusaiban/actions/runs/39961071106)は実装コミット `1262d91` に対して成功しました。Ubuntu24.04 / Node24.21.0の新しいrunnerでnpm ci、ブラウザ導入、型検査、単体80件、文書検査、使い捨ての実Auth/DB起動、DB16件、接続済みproduction build、Chromium26件（1.3分）、コンテナ停止を確認しました。ローカルの既存node_modulesやブラウザプロセスを使った成功ではありません。
+
+再現用のWebKit設定からも11件を再実行し、2.0分ですべて合格しました。Node24対応の公式定義を確認し、CIアクションをcheckout@v5 / setup-node@v5 / upload-artifact@v6へ更新しています。
