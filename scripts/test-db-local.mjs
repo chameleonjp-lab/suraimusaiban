@@ -10,6 +10,14 @@ import {
   chmodSync,
 } from "node:fs";
 import { Client } from "pg";
+// Official Docker Hub manifests match the previously verified ECR images.
+// Digest pins keep the runtime identical while avoiding the ECR quota failure.
+const authImage =
+  "docker.io/supabase/gotrue@sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b"; // GoTrue v2.197.0
+const restImage =
+  "docker.io/postgrest/postgrest@sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc"; // PostgREST v16.5
+const gatewayImage =
+  "docker.io/library/kong@sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d"; // Kong 2.8.1
 const action = process.argv[2] ?? "test";
 const root = "/tmp/slime-trial-db";
 mkdirSync(root, { recursive: true });
@@ -91,7 +99,7 @@ if (action === "start") {
     alter function auth.uid() owner to supabase_auth_admin;
     grant usage on schema auth to anon,authenticated,service_role; grant execute on function auth.uid() to anon,authenticated,service_role;`);
   await c.end();
-  run(names[2], "public.ecr.aws/supabase/gotrue:v2.197.0", [], {
+  run(names[2], authImage, [], {
     GOTRUE_API_HOST: "0.0.0.0",
     GOTRUE_API_PORT: "9999",
     API_EXTERNAL_URL: "http://127.0.0.1:54321/auth/v1",
@@ -113,7 +121,7 @@ if (action === "start") {
     GOTRUE_EXTERNAL_EMAIL_ENABLED: "true",
     GOTRUE_MAILER_AUTOCONFIRM: "true",
   });
-  run(names[1], "public.ecr.aws/supabase/postgrest:v16.5", [], {
+  run(names[1], restImage, [], {
     PGRST_DB_URI:
       "postgres://authenticator:local-authenticator@slime-trial-postgres:5432/postgres",
     PGRST_DB_SCHEMAS: "public",
@@ -141,7 +149,7 @@ if (action === "start") {
     "KONG_PROXY_LISTEN=0.0.0.0:8000",
     "-e",
     "KONG_ADMIN_LISTEN=off",
-    "public.ecr.aws/supabase/kong:2.8.1",
+    gatewayImage,
   );
   docker("cp", `${root}/kong.yml`, `${names[0]}:/tmp/kong.yml`);
   docker("start", names[0]);

@@ -64,3 +64,17 @@ Realtime is not running in this reduced stack. Frontend fallback polling can be 
 The two metadata-only tests in `tests/integration/publication.test.ts` first demonstrated one failure against the empty migration, then both passed after implementation (2026-10-23 13:20:41 UTC). They create a real PostgreSQL publication fixture inside a rolled-back transaction, execute the migration, query publication membership, repeat the migration to check idempotency, and check the absent-publication path. No vote or aggregate rows change. The final conditional migration was also applied to the local fixture, where no publication exists. These checks validate publication configuration only; live Realtime delivery remains unverified in the reduced stack.
 
 Coverage was strengthened after review so the add path runs even when a full Supabase stack already includes the aggregate table: the test removes only `aggregate_snapshots` inside its transaction, then checks the migration adds exactly that table and remains idempotent. The original assertion already accepted preconfigured membership; this is a coverage improvement, not a production migration fix. The metadata-only suite passed **2/2 with the publication absent** and **2/2 with the aggregate already included** (2026-10-23 13:27:46–47 UTC). A separate membership query confirmed rollback restored the original aggregate membership. No ballot/aggregate rows changed, and the production migration was unchanged.
+
+## CI registry availability
+
+An earlier complete CI run passed **80 unit tests, 16 database tests, and 26 browser tests**. Later clean-runner attempts, including a retry, failed before database tests while ECR pulled Auth: `docker: toomanyrequests: Data limit exceeded`. This was an external registry quota failure. The harness now uses the same official images from Docker Hub, pinned by verified manifest digest:
+
+| Service/version | Official Docker Hub image       | Manifest digest                                                           |
+| --------------- | ------------------------------- | ------------------------------------------------------------------------- |
+| GoTrue v2.197.0 | `docker.io/supabase/gotrue`     | `sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b` |
+| PostgREST v16.5 | `docker.io/postgrest/postgrest` | `sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc` |
+| Kong 2.8.1      | `docker.io/library/kong`        | `sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d` |
+
+Registry manifest responses were checked against their raw SHA-256 hashes and the cached ECR repository digests; all three match exactly. Linux amd64 image configuration digests also match the cached ECR image IDs. No image layers were downloaded for this comparison. The PostgREST and Kong upstream Docker Hub namespaces differ from their ECR mirror namespaces.
+
+The registry-only harness update passed local JavaScript syntax and formatting checks. The running preview database was not restarted. Clean image pulls, startup, and the full test suite are left to the next CI run; the earlier successful CI remains historical evidence, not a claim that the registry update has already passed CI.
