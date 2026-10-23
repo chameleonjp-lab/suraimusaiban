@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
 const config = JSON.parse(readFileSync("config/production.json", "utf8"));
 const html = readFileSync("dist/index.html", "utf8");
-const png = readFileSync("dist/social-card.png");
+const png = readFileSync("dist/social-card-v3.png");
 assert.equal(
   config.siteUrl,
   "https://chameleonjp-lab.github.io/suraimusaiban/",
@@ -16,8 +16,14 @@ assert.match(
 assert.match(html, /name="twitter:card" content="summary_large_image"/);
 assert.match(
   html,
-  /property="og:image" content="https:\/\/chameleonjp-lab.github.io\/suraimusaiban\/social-card.png"/,
+  /property="og:image" content="https:\/\/chameleonjp-lab.github.io\/suraimusaiban\/social-card-v3\.png"/,
 );
+assert.match(
+  html,
+  /name="twitter:image" content="https:\/\/chameleonjp-lab.github.io\/suraimusaiban\/social-card-v3\.png"/,
+);
+assert.match(html, /property="og:image:width" content="1733"/);
+assert.match(html, /property="og:image:height" content="908"/);
 assert.match(html, /src="\/suraimusaiban\/assets\//);
 assert.equal(png.subarray(1, 4).toString(), "PNG");
 assert.equal(png.readUInt32BE(16), 1733);
