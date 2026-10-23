@@ -8,7 +8,7 @@ const migration = readFileSync(
 );
 
 describe("optional Realtime publication migration (metadata only)", () => {
-  it("adds only aggregate_snapshots to an existing publication and is idempotent", async () => {
+  it("adds only slime_trial_aggregate_snapshots to an existing publication and is idempotent", async () => {
     const c = await sql();
     try {
       await c.query("begin");
@@ -25,17 +25,17 @@ describe("optional Realtime publication migration (metadata only)", () => {
         ).rows.map((row) => row.name as string);
       // Exercise the add path even when the migration already ran in a full
       // Supabase stack. Rollback restores this table's original membership.
-      if ((await membership()).includes("public.aggregate_snapshots"))
+      if ((await membership()).includes("public.slime_trial_aggregate_snapshots"))
         await c.query(
-          "alter publication supabase_realtime drop table public.aggregate_snapshots",
+          "alter publication supabase_realtime drop table public.slime_trial_aggregate_snapshots",
         );
       const before = await membership();
-      expect(before).not.toContain("public.aggregate_snapshots");
+      expect(before).not.toContain("public.slime_trial_aggregate_snapshots");
       await c.query(migration);
       const first = await membership();
-      expect(first).toContain("public.aggregate_snapshots");
+      expect(first).toContain("public.slime_trial_aggregate_snapshots");
       expect(first.filter((name) => !before.includes(name))).toEqual([
-        "public.aggregate_snapshots",
+        "public.slime_trial_aggregate_snapshots",
       ]);
       await c.query(migration);
       expect(await membership()).toEqual(first);

@@ -69,25 +69,25 @@ describe("real PostgreSQL concurrent transactions", () => {
       c = await sql();
     try {
       await c.query(
-        "create function private.test_fail_snapshot() returns trigger language plpgsql as $$ begin raise exception 'INTENTIONAL_ROLLBACK'; end $$; create trigger test_fail before update on public.aggregate_snapshots for each row execute function private.test_fail_snapshot()",
+        "create function slime_trial_private.test_fail_snapshot() returns trigger language plpgsql as $$ begin raise exception 'INTENTIONAL_ROLLBACK'; end $$; create trigger test_fail before update on public.slime_trial_aggregate_snapshots for each row execute function slime_trial_private.test_fail_snapshot()",
       );
       expect((await submit(a.client)).error?.message).toContain(
         "INTENTIONAL_ROLLBACK",
       );
     } finally {
       await c.query(
-        "drop trigger test_fail on public.aggregate_snapshots; drop function private.test_fail_snapshot()",
+        "drop trigger test_fail on public.slime_trial_aggregate_snapshots; drop function slime_trial_private.test_fail_snapshot()",
       );
     }
     try {
-      expect((await c.query("select * from public.ballots")).rows).toHaveLength(
+      expect((await c.query("select * from public.slime_trial_ballots")).rows).toHaveLength(
         0,
       );
       expect(
-        (await c.query("select * from private.submissions")).rows,
+        (await c.query("select * from slime_trial_private.submissions")).rows,
       ).toHaveLength(0);
       expect(
-        (await c.query("select * from private.submit_limits")).rows,
+        (await c.query("select * from slime_trial_private.submit_limits")).rows,
       ).toHaveLength(0);
       expect((await snapshot()).count).toBe("0");
     } finally {

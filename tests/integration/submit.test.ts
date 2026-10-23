@@ -73,7 +73,7 @@ describe("atomic submission", () => {
       ),
     ];
     for (const p_answers of invalid) {
-      const r = await a.client.rpc("submit_ballot", {
+      const r = await a.client.rpc("slime_trial_submit_ballot", {
         p_version: "v1",
         p_answers,
         p_request_id: randomUUID(),
@@ -102,7 +102,7 @@ describe("atomic submission", () => {
     const c = await sql();
     try {
       await c.query(
-        "update private.submit_limits set operations=array_fill(now()-interval '61 seconds', array[10]) where participant_id=$1",
+        "update slime_trial_private.submit_limits set operations=array_fill(now()-interval '61 seconds', array[10]) where participant_id=$1",
         [a.id],
       );
     } finally {
@@ -125,7 +125,7 @@ describe("atomic submission", () => {
           const {
             rows: [{ result }],
           } = await c.query(
-            "select private.score_ballot($1::jsonb) as result",
+            "select slime_trial_private.score_ballot($1::jsonb) as result",
             [JSON.stringify(values)],
           );
           expect(result.total).toBe(expected.total);

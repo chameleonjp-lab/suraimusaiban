@@ -41,7 +41,7 @@ test("lost_response_retries_once: discard the actual committed response and repl
   const requests: unknown[] = [];
   let committed: any;
   let replay: any;
-  await page.route("**/rest/v1/rpc/submit_ballot", async (route) => {
+  await page.route("**/rest/v1/rpc/slime_trial_submit_ballot", async (route) => {
     requests.push(route.request().postDataJSON());
     const response = await route.fetch();
     expect(response.ok()).toBe(true);
@@ -80,7 +80,7 @@ test("stale_receipt_newer_vote: a committed old request cannot return its receip
     releaseFirst = resolve;
   });
   let requests = 0;
-  await page.route("**/rest/v1/rpc/submit_ballot", async (route) => {
+  await page.route("**/rest/v1/rpc/slime_trial_submit_ballot", async (route) => {
     requests++;
     if (requests !== 1) {
       await route.continue();

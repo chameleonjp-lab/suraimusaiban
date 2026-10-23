@@ -80,6 +80,7 @@ export function getSupabaseClient(): SupabaseClient | null {
     }
     client = createClient(import.meta.env.VITE_SUPABASE_URL, key, {
       auth: {
+        storageKey: "slime-trial:auth:v1",
         persistSession: true,
         storage: sessionStorageAdapter,
         detectSessionInUrl: false,

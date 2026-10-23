@@ -53,6 +53,13 @@ test("receipt results show all answers, fixed-order accumulation and paired axis
     });
   });
   await expect(page.getByTestId("individual-total")).toHaveText("0");
+  const xPost = new URL(
+    (await page
+      .getByRole("link", { name: "今回の判決をXでシェア" })
+      .getAttribute("href"))!,
+  );
+  expect(xPost.searchParams.get("text")).toContain("釈放");
+  expect(xPost.searchParams.get("text")).toContain("合計 0点");
   await expect(page.getByTestId("score-breakdown")).toContainText("−50");
   await expect(page.getByTestId("score-breakdown")).toContainText("＋50");
   await expect(

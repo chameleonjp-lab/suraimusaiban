@@ -96,7 +96,7 @@ test("failed refresh retains the previous values and timestamp", async ({
       contentType: "text/javascript",
       body: `
   const channel={on(){return this},subscribe(callback){callback('CHANNEL_ERROR');return this}};
-  export function getSupabaseClient(){return {channel(){return channel},removeChannel(){return Promise.resolve()},from(table){if(table!=='aggregate_snapshots')throw new Error('private table');return {select(columns){if(columns!=='payload')throw new Error('private fields');return {eq(column,version){if(column!=='version'||version!=='v1')throw new Error('wrong version');return {single:async()=>{if(window.failRefresh)return {data:null,error:{message:'offline'}};return {data:{payload:window.feedSnapshot},error:null};}}}}}}}};}
+  export function getSupabaseClient(){return {channel(){return channel},removeChannel(){return Promise.resolve()},from(table){if(table!=='slime_trial_aggregate_snapshots')throw new Error('slime_trial_private table');return {select(columns){if(columns!=='payload')throw new Error('slime_trial_private fields');return {eq(column,version){if(column!=='version'||version!=='v1')throw new Error('wrong version');return {single:async()=>{if(window.failRefresh)return {data:null,error:{message:'offline'}};return {data:{payload:window.feedSnapshot},error:null};}}}}}}}};}
  `,
     }),
   );

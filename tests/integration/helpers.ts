@@ -54,7 +54,7 @@ export async function submit(
   requestId = randomUUID(),
   version = "v1",
 ) {
-  return client.rpc("submit_ballot", {
+  return client.rpc("slime_trial_submit_ballot", {
     p_version: version,
     p_answers: wire(values),
     p_request_id: requestId,
@@ -65,10 +65,10 @@ export async function reset() {
   const c = await sql();
   try {
     await c.query(
-      "truncate public.ballots, private.submissions, private.submit_limits",
+      "truncate public.slime_trial_ballots, slime_trial_private.submissions, slime_trial_private.submit_limits",
     );
     await c.query(
-      "update public.aggregate_snapshots set revision=0, updated_at=now(), payload=private.empty_snapshot(version)",
+      "update public.slime_trial_aggregate_snapshots set revision=0, updated_at=now(), payload=slime_trial_private.empty_snapshot(version)",
     );
   } finally {
     await c.end();
@@ -76,7 +76,7 @@ export async function reset() {
 }
 export async function snapshot() {
   const { data, error } = await browser()
-    .from("aggregate_snapshots")
+    .from("slime_trial_aggregate_snapshots")
     .select("payload")
     .eq("version", "v1")
     .single();

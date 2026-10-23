@@ -20,7 +20,7 @@ Three.jsによる3Dアニメ風の法廷と、添付デザインに基づくス�
 python3 scripts/validate-docs.py
 ```
 
-本番Supabaseへの接続と公開は未実施です。変更はPRで確認し、マージは作成者が行います。
+正式な公開先は [GitHub Pages](https://chameleonjp-lab.github.io/suraimusaiban/) です。mainへのPRマージ後、検証に成功すると同じコミットを自動配備します。ランキングと同じSupabaseプロジェクトの専用テーブルで回答と全体集計を管理します。
 
 ## 起動
 
@@ -42,5 +42,7 @@ npm run build
 ```
 
 [DB権限・並行処理の検証](docs/qa/database.md)、[3Dモデル](docs/qa/slime-model.md)、[画面と操作](docs/qa/courtroom.md)、[公開前確認](docs/qa/release-checks.md)を参照してください。実機iPhone Safariや本番環境の確認は、エミュレーションと区別して記録しています。
+
+[Xシェア・集計接続・自動公開の記録](docs/qa/sharing-publication.md)には、本番設定と配備前確認を記載しています。
 
 ![ホーム画面](docs/qa/screenshots/home-desktop.png)

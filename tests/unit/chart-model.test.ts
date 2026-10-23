@@ -67,7 +67,7 @@ function snapshot(count = "2", sum = "0"): Snapshot {
   } as Snapshot;
 }
 describe("chart models preserve the exact receipt and rational signs", () => {
-  it("does not create an average radar or verdict for zero ballots", () => {
+  it("does not create an average radar or verdict for zero slime_trial_ballots", () => {
     expect(radarModel(null, snapshot("0", "0"))).toBeNull();
     expect(snapshotVerdict(snapshot("0", "0"))).toBeNull();
   });

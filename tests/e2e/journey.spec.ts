@@ -35,7 +35,7 @@ async function answerAll(page: Page, positive = true) {
 
 async function submit(page: Page) {
   const response = page.waitForResponse(
-    (r) => r.url().includes("/rpc/submit_ballot") && r.ok(),
+    (r) => r.url().includes("/rpc/slime_trial_submit_ballot") && r.ok(),
   );
   await page.getByRole("button", { name: "この判断を提出する" }).click();
   const receipt = await (await response).json();
@@ -61,6 +61,16 @@ test("connected_journey: anonymous UI submission, fixed comparison, PNG save and
   const first = await submit(page);
   expect(BigInt(first.snapshot.count)).toBe(BigInt(before.count) + 1n);
   await expect(page.getByTestId("individual-total")).toHaveText("＋100");
+  const xPost = new URL(
+    (await page
+      .getByRole("link", { name: "今回の判決をXでシェア" })
+      .getAttribute("href"))!,
+  );
+  expect(xPost.searchParams.get("text")).toContain("神の使いとして神殿管理");
+  expect(xPost.searchParams.get("text")).toContain("＋100点");
+  expect(xPost.searchParams.get("url")).toBe(
+    "https://chameleonjp-lab.github.io/suraimusaiban/",
+  );
   const comparison = await page.getByTestId("comparison").innerHTML();
   await expect(page.getByTestId("comparison")).toContainText(
     `集計版 ${first.snapshot.revision}`,
@@ -206,18 +216,14 @@ test("result_lifetime: direct URL, reload, history and page restoration cannot r
       2,
     ),
   );
-  await test
-    .info()
-    .attach("bfcache-evidence", {
-      path: evidence,
-      contentType: "application/json",
-    });
-  test
-    .info()
-    .annotations.push({
-      type: "BFCache",
-      description: actualBFCache
-        ? "Actual persisted restoration observed."
-        : "Engine reloaded the document; synthetic persisted handler tested separately, actual BFCache remains unverified.",
-    });
+  await test.info().attach("bfcache-evidence", {
+    path: evidence,
+    contentType: "application/json",
+  });
+  test.info().annotations.push({
+    type: "BFCache",
+    description: actualBFCache
+      ? "Actual persisted restoration observed."
+      : "Engine reloaded the document; synthetic persisted handler tested separately, actual BFCache remains unverified.",
+  });
 });
