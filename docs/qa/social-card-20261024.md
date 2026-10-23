@@ -53,4 +53,3 @@ CHARACTER: Replace image 1's generic simplified slime with a fully three-dimensi
 COMPOSITION: Preserve the wide warm medieval courtroom setting from image 1: stone arches, sunlit windows, wooden courtroom furniture and indigo/gold drapery. Simplify areas behind the title to keep the rounded lettering readable. Retain the title on the left and the single large slime on the right, with balanced spacing and generous safe margins. The slime and title are the two focal points. No UI buttons, charts, panels or caption ribbons.
 OUTPUT: exactly 1732 pixels wide by 908 pixels tall, same approximately 1.91:1 landscape aspect ratio as input image 1, full-bleed opaque PNG. No border. Only change the title typography/remove captions and replace the slime as described; maintain the overall background atmosphere.
 ```
-
