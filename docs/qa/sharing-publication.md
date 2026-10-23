@@ -5,7 +5,7 @@
 ## 実装と証拠
 
 - ホームの「このゲームをXでシェア」は20件の裁判への紹介文。結果の「今回の判決をXでシェア」は本人の判決・符号付き合計点を含みます。どちらも正式URLだけを使い、クエリ・回答ID・参加者IDを投稿リンクへ入れません。
-- [SNS画像](../../public/social-card.png)は完成モデルを参照して生成した1732×908の不透明PNG（約2MB）。OGP・Twitter `summary_large_image`・日本語altを設定しています。
+- [SNS画像](../../public/social-card.png)は参照資料のスライムを3D表現にして生成した1733×908の不透明PNG（約2MB）。OGP・Twitter `summary_large_image`・日本語altを設定しています。2026-10-24に書体をポップにし、画像内の文字を「スライム裁判」だけに変更しました。[更新時の確認記録](social-card-20261024.md)
 - [ホームの追加ボタン](screenshots/home-share.png)を縦390pxで確認しました。画像保存・端末共有・投稿文コピーも本人結果に合わせています。
 - `config/production.json` はランキングと同じSupabase URL・publishable keyを使います。管理キーは含みません。共有プロジェクトへ専用名の表・RPC・非公開schemaを作り、元のランキング表と権限を変更していません。
 - ローカルの型検査、単体84件、実PostgreSQL/Auth/RESTのDB17件、Chromium27件（1.1分）が合格しました。DB試験には、他ゲームのprivate schema権限を保ったまま導入できることを追加しています。

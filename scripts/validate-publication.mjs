@@ -20,7 +20,7 @@ assert.match(
 );
 assert.match(html, /src="\/suraimusaiban\/assets\//);
 assert.equal(png.subarray(1, 4).toString(), "PNG");
-assert.equal(png.readUInt32BE(16), 1732);
+assert.equal(png.readUInt32BE(16), 1733);
 assert.equal(png.readUInt32BE(20), 908);
 assert(png.length < 5_000_000, "Social image must fit X's image size limit");
 const release = JSON.parse(readFileSync("dist/release.json", "utf8"));
