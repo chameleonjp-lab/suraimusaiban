@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 
 function toon(
   color: THREE.ColorRepresentation,
@@ -205,5 +206,44 @@ export function createCourtroom(): THREE.Group {
   prosecutor.rotation.y = 0.22;
   const advocate = person("advocate", 2.55, -0.79, "#435660", "#897361");
   advocate.rotation.y = -0.22;
+  batchStaticGroup(room);
   return room;
+}
+
+/** Bake only direct, static siblings. Person groups retain their own transforms. */
+function batchStaticGroup(group: THREE.Group): void {
+  for (const child of [...group.children])
+    if (child instanceof THREE.Group) batchStaticGroup(child);
+  const byMaterial = new Map<THREE.Material, THREE.Mesh[]>();
+  for (const child of group.children) {
+    if (!(child instanceof THREE.Mesh) || Array.isArray(child.material))
+      continue;
+    const batch = byMaterial.get(child.material) ?? [];
+    batch.push(child);
+    byMaterial.set(child.material, batch);
+  }
+  let batchNumber = 0;
+  for (const [material, meshes] of byMaterial) {
+    if (meshes.length < 2) continue;
+    const geometries = meshes.map((mesh) => {
+      mesh.updateMatrix();
+      const geometry = mesh.geometry.index
+        ? mesh.geometry.toNonIndexed()
+        : mesh.geometry.clone();
+      return geometry.applyMatrix4(mesh.matrix);
+    });
+    const merged = mergeGeometries(geometries, false);
+    for (const geometry of geometries) geometry.dispose();
+    if (!merged)
+      throw new Error(
+        "Static courtroom geometries have incompatible attributes",
+      );
+    const combined = new THREE.Mesh(merged, material);
+    combined.name = `${group.name}-static-${batchNumber++}`;
+    for (const mesh of meshes) {
+      group.remove(mesh);
+      mesh.geometry.dispose();
+    }
+    group.add(combined);
+  }
 }

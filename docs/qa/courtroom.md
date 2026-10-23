@@ -28,4 +28,4 @@
 
 ## 制約
 
-これらはChromiumの検証であり、iPhone Safariの実機合格ではない。フレームレート・長時間GPU負荷・端末での画像保存は別途の実機確認が必要。法廷モデル自体の造形確認は [scene.md](scene.md) を参照。
+これらはChromiumの検証であり、iPhone Safariの実機合格ではない。フレームレート・長時間GPU負荷・端末での画像保存は別途の実機確認が必要。法廷モデル自体の造形確認は [slime-model.md](slime-model.md) を参照。

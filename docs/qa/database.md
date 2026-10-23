@@ -27,11 +27,12 @@ The harness does not modify repository `.env` files. Its fixed signing secret an
 
 ## Runtime and migration evidence
 
-Supabase CLI **2.122.0** was inspected using `--version`, top-level help, and command-specific help. Both files were generated with the required CLI commands:
+Supabase CLI **2.122.0** was inspected using `--version`, top-level help, and command-specific help. The storage/submission files and follow-up Realtime migration were generated with the required CLI commands:
 
 ```sh
 supabase migration new trial_schema
 supabase migration new trial_submit
+supabase migration new trial_realtime
 ```
 
 The full CLI stack was attempted first. Pulling `supabase/postgres:17.11.0.006` failed with `failed to register layer: no space left on device` under the managed Docker `vfs` driver. The working harness uses stock **PostgreSQL 17.11** (digest-pinned `postgres:17-alpine`), official Supabase **GoTrue v2.197.0**, **PostgREST v16.5**, and **Kong 2.8.1**. Auth creates actual anonymous users and issues JWTs; PostgREST validates the JWT and changes database role. This is a reduced local Supabase service stack, not a complete CLI-stack verification.
@@ -50,6 +51,14 @@ The replay hash covers normalized answers. Identical request IDs consume no addi
 
 ## Verified and remaining scope
 
-The integration suite verifies empty snapshots, owner-only reads, all direct DML denials, private API invisibility, function privilege metadata, first/replacement/second-person votes, unchanged submissions, retries, stale and reused request IDs, invalid inputs, version mismatches, the shared TypeScript scoring fixtures, rate limits including window expiry, simultaneous changes, and injected failures after ballot update. Every case distribution and verdict distribution is checked against the vote count after concurrent writes.
+The integration suite verifies empty snapshots, owner-only reads, all direct DML denials, private API invisibility, function privilege metadata, first/replacement/second-person votes, unchanged submissions, retries, stale and reused request IDs, invalid inputs, version mismatches, the shared TypeScript scoring fixtures, rate limits including window expiry, simultaneous changes, and injected failures after ballot update. Every case distribution and verdict distribution is checked against the vote count after concurrent writes. The final suite passed **14/14** on a fresh harness start and migration apply (2026-10-23 13:12:01 UTC, 3.43 seconds). The SQL scorer also matches TypeScript for all 100 H/K pairs across all ten axes (1,000 axis values and 100 totals/verdicts).
+
+The 20-writer run on 2026-10-23 13:12:37 UTC passed all three concurrency/rollback cases. Twenty simultaneous independent submissions took **304.8 ms** for the batch, **211.4 ms p50**, **298.9 ms p95**, and **303.4 ms max**. Conditions: Node 24.19.0, Linux x64 managed container, localhost HTTP through Kong → PostgREST → PostgreSQL 17.11, same local Docker network, server work serialized by the aggregate lock. Anonymous users were created before timing. These numbers describe one local correctness workload, not a production capacity guarantee. The test writes its measurement to `/tmp/slime-trial-concurrency.json` for review.
 
 Realtime is not running in this reduced stack. Frontend fallback polling can be exercised here; live Realtime delivery cannot. Mobile Safari, production CAPTCHA and Auth abuse settings, hosted-project configuration, and production load remain separate release checks. `supabase/config.toml` enables anonymous Auth locally and increases the local anonymous signup allowance for automated tests; production must explicitly configure CAPTCHA and suitable Auth limits. The RPC's per-identity rolling operation limit remains active during tests. Public content/scoring versions are fixed and client read-only; meaningful changes require a new version and matching scoring implementation/migration.
+
+## Realtime publication configuration
+
+`20261023131952_trial_realtime.sql` conditionally adds only `public.aggregate_snapshots` to an existing `supabase_realtime` publication. It preserves other existing publication membership, does not publish ballots or private records, and safely does nothing if the publication is absent or the aggregate table is already included.
+
+The two metadata-only tests in `tests/integration/publication.test.ts` first demonstrated one failure against the empty migration, then both passed after implementation (2026-10-23 13:20:41 UTC). They create a real PostgreSQL publication fixture inside a rolled-back transaction, execute the migration, query publication membership, repeat the migration to check idempotency, and check the absent-publication path. No vote or aggregate rows change. The final conditional migration was also applied to the local fixture, where no publication exists. These checks validate publication configuration only; live Realtime delivery remains unverified in the reduced stack.

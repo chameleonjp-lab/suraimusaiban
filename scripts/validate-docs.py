@@ -134,7 +134,7 @@ def main():
                     f'Broken local link: {path.relative_to(ROOT)} -> {target}')
             links += 1
     print(f'PASS: plan structure and {links} repository-relative links')
-    print('Document checks passed. Game, database, and device behavior remain unimplemented/untested.')
+    print('Document checks passed. Run application, database, and browser tests separately.')
 
 
 if __name__ == '__main__':
