@@ -25,6 +25,7 @@ export function mountScene(
     elapsed = 0;
   let inView = true,
     reducedMotion = false;
+  let motionControlledByCaller = false;
   let view: "home" | "trial" | "still" = "home";
   let quality: SceneQuality = "standard";
   const frameBudget = createFrameMonitor();
@@ -143,6 +144,7 @@ export function mountScene(
   }
   const visibilityChanged = () => reconcile();
   const mediaChanged = (event: MediaQueryListEvent) => {
+    if (motionControlledByCaller) return;
     reducedMotion = event.matches;
     reconcile();
   };
@@ -227,6 +229,7 @@ export function mountScene(
       reconcile();
     },
     setReducedMotion(value) {
+      motionControlledByCaller = true;
       reducedMotion = value;
       reconcile();
     },

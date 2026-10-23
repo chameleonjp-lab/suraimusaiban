@@ -31,7 +31,16 @@ export function mountApp(container: HTMLElement): () => void {
   let receipt: SubmitReceipt | null = null;
   let currentRoute: AppRoute = "home";
   let generation = 0;
-  let paused = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const motionPreference = matchMedia("(prefers-reduced-motion: reduce)");
+  let paused = motionPreference.matches;
+  let manuallyPaused = false;
+  const motionChanged = (event: MediaQueryListEvent) => {
+    paused = event.matches || manuallyPaused;
+    scene?.setReducedMotion(paused);
+    const toggle = container.querySelector<HTMLButtonElement>(".scene-toggle");
+    if (toggle) toggle.textContent = paused ? "3Dを再開" : "3Dを停止";
+  };
+  motionPreference.addEventListener("change", motionChanged);
   let pending: SubmitRequest | null = null;
   const connected = isBackendConfigured();
   let previewId = `preview-${crypto.randomUUID()}`;
@@ -88,13 +97,16 @@ export function mountApp(container: HTMLElement): () => void {
       const target = main.querySelector<HTMLElement>(".trial-content")!;
       setupScene(main, "trial");
       try {
-        if (!participant)
-          participant = connected
-            ? await ensureParticipant()
-            : { id: previewId, persistent: false };
-        const ballot = connected ? await loadOwnBallot("v1") : null;
+        // Identity can change in another tab while this app remains mounted.
+        const activeParticipant = connected
+          ? await ensureParticipant()
+          : { id: previewId, persistent: false };
+        const ballot = connected
+          ? await loadOwnBallot("v1", activeParticipant.id)
+          : null;
         if (generation !== thisGeneration) return;
-        const state = startTrial(participant, ballot);
+        participant = activeParticipant;
+        const state = startTrial(activeParticipant, ballot);
         cleanupView = mountTrial(
           target,
           state,
@@ -146,6 +158,7 @@ export function mountApp(container: HTMLElement): () => void {
     if (toggle)
       toggle.onclick = () => {
         paused = !paused;
+        manuallyPaused = paused;
         scene?.setReducedMotion(paused);
         toggle.textContent = paused ? "3Dを再開" : "3Dを停止";
       };
@@ -190,7 +203,7 @@ export function mountApp(container: HTMLElement): () => void {
       if (identity.error) throw new VoteError("NETWORK_ERROR");
       if (identity.data.session?.user.id !== state.participantId)
         throw new VoteError("UNAUTHENTICATED");
-      const value = await submitBallot(pending);
+      const value = await submitBallot(pending, state.participantId);
       if (generation !== thisGeneration) return;
       pending = null;
       receipt = value;
@@ -203,7 +216,10 @@ export function mountApp(container: HTMLElement): () => void {
       if (code === "STALE_REVISION") {
         pending = null;
         const showConflict = async () => {
-          const ballot = await loadOwnBallot(state.version).catch(() => null);
+          const ballot = await loadOwnBallot(
+            state.version,
+            state.participantId,
+          ).catch(() => null);
           if (generation !== thisGeneration) return;
           target.querySelector(".conflict")?.remove();
           if (!ballot) {
@@ -313,6 +329,7 @@ export function mountApp(container: HTMLElement): () => void {
     cleanupView();
     scene?.dispose();
     receipt = null;
+    motionPreference.removeEventListener("change", motionChanged);
     removeEventListener("popstate", onPop);
     removeEventListener("pageshow", onPageShow);
     container.replaceChildren();

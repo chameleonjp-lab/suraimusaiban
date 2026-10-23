@@ -153,18 +153,29 @@ function requireClient() {
 }
 export async function loadOwnBallot(
   version: ContentVersion,
+  expectedParticipantId?: string,
 ): Promise<Ballot | null> {
   const client = requireClient();
   const session = await client.auth.getSession();
   if (session.error) throw new VoteError("NETWORK_ERROR");
-  if (!session.data.session) throw new VoteError("UNAUTHENTICATED");
+  if (
+    !session.data.session ||
+    (expectedParticipantId &&
+      session.data.session.user.id !== expectedParticipantId)
+  )
+    throw new VoteError("UNAUTHENTICATED");
   const { data, error } = await client
     .from("ballots")
     .select("version,answers,revision::text")
     .eq("version", version)
     .eq("participant_id", session.data.session.user.id)
-    .maybeSingle();
+    .maybeSingle()
+    .setHeader("Authorization", `Bearer ${session.data.session.access_token}`);
   if (error) throw new VoteError("NETWORK_ERROR");
+  const current = await client.auth.getSession();
+  if (current.error) throw new VoteError("NETWORK_ERROR");
+  if (current.data.session?.user.id !== session.data.session.user.id)
+    throw new VoteError("UNAUTHENTICATED");
   return data ? parseBallot(data) : null;
 }
 export async function loadSnapshot(version: ContentVersion): Promise<Snapshot> {
@@ -195,6 +206,7 @@ export function createSubmitter(
   rpc: Rpc,
   participantId: () => Promise<string | null>,
   parse = parseReceipt,
+  expectedParticipantId?: string,
 ) {
   return async (request: SubmitRequest): Promise<SubmitReceipt> => {
     const answers = validateAnswers(request.answers);
@@ -208,7 +220,8 @@ export function createSubmitter(
       throw new VoteError("INVALID_ANSWERS");
     integer(request.expectedRevision);
     const owner = await participantId();
-    if (!owner) throw new VoteError("UNAUTHENTICATED");
+    if (!owner || (expectedParticipantId && owner !== expectedParticipantId))
+      throw new VoteError("UNAUTHENTICATED");
     const args = {
       p_version: request.version,
       p_answers: CASE_ORDER.map((caseId) => ({
@@ -224,6 +237,8 @@ export function createSubmitter(
       try {
         const { data, error } = await rpc("submit_ballot", args);
         if (error) throw rpcError(error);
+        if ((await participantId()) !== owner)
+          throw new VoteError("UNAUTHENTICATED");
         return parse(data);
       } catch (error) {
         if (error instanceof VoteError && error.code !== "NETWORK_ERROR")
@@ -234,14 +249,32 @@ export function createSubmitter(
     throw new VoteError("NETWORK_ERROR");
   };
 }
-export function submitBallot(request: SubmitRequest): Promise<SubmitReceipt> {
+export async function submitBallot(
+  request: SubmitRequest,
+  expectedParticipantId?: string,
+): Promise<SubmitReceipt> {
   const client = requireClient();
+  const captured = await client.auth.getSession();
+  if (captured.error) throw new VoteError("NETWORK_ERROR");
+  const session = captured.data.session;
+  if (
+    !session ||
+    (expectedParticipantId && session.user.id !== expectedParticipantId)
+  )
+    throw new VoteError("UNAUTHENTICATED");
+  // Pin the JWT, not just a preflight identity check. Auth may change between
+  // awaits; this request must never acquire the replacement user's token.
   return createSubmitter(
-    (name, args) => client.rpc(name, args),
+    (name, args) =>
+      client
+        .rpc(name, args)
+        .setHeader("Authorization", `Bearer ${session.access_token}`),
     async () => {
       const { data, error } = await client.auth.getSession();
       if (error) throw new VoteError("NETWORK_ERROR");
       return data.session?.user.id ?? null;
     },
+    parseReceipt,
+    expectedParticipantId ?? session.user.id,
   )(request);
 }
