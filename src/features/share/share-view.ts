@@ -1,5 +1,6 @@
 import type { ResultSession } from "../../domain/types";
 import { cardDescription, renderCard, type CardKind } from "./card";
+import { resultShare } from "./x-share";
 export async function shareCard(
   blob: Blob,
   text: string,
@@ -77,18 +78,14 @@ export function mountShare(
   retry.type = "button";
   retry.className = "secondary-button";
   retry.hidden = true;
-  const postText = `スライム裁判 — 今回の裁判に表れた判断傾向。 ${gameUrl}`;
+  const post = resultShare(session.individual);
+  const postText = `${post.text}\n${post.url}`;
   const manualText = node("textarea", postText);
   manualText.value = postText;
   manualText.readOnly = true;
   manualText.setAttribute("aria-label", "コピー用の投稿文");
   manualText.hidden = true;
   manualText.style.width = "100%";
-  const x = node("a", "Xで投稿文を開く");
-  x.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(postText)}`;
-  x.target = "_blank";
-  x.rel = "noopener noreferrer";
-  x.className = "secondary-button";
   const help = node(
     "p",
     "画像は保存してX側で添付できます。投稿文のリンクに画像は自動添付されません。投稿はXで確認して確定してください。",
@@ -96,7 +93,7 @@ export function mountShare(
   const actions = node("div");
   actions.style.cssText =
     "display:flex;flex-wrap:wrap;gap:.6rem;align-items:center";
-  actions.append(save, share, copy, x, retry);
+  actions.append(save, share, copy, retry);
   container.replaceChildren(
     title,
     intro,

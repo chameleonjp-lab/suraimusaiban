@@ -1,6 +1,28 @@
 # 接続・公開・復旧手順
 
-この実装は静的なViteアプリと、Supabaseの匿名Auth・Postgres・Realtimeを使用します。本番プロジェクトや公開URLは未指定です。既存アプリへの接続、リモートmigration、本番公開は行っていません。
+この実装は静的なViteアプリと、Supabaseの匿名Auth・Postgres・Realtimeを使用します。正式URLは `https://chameleonjp-lab.github.io/suraimusaiban/`。ランキングと同じ `chameleonJP-Lab` プロジェクト（`mlpnjgezrnhdxsxolyzj`）へ接続します。公開用接続情報は `config/production.json` に記録しています。
+
+## GitHub Pagesと自動反映
+
+PRをmainへマージすると `Verify slime trial` が単体・実DB・ブラウザ・公開成果物を検証し、成功後に `Publish GitHub Pages` が同じSHAをビルドして公開します。失敗した検証では配備を開始しません。Pagesの配信元はGitHub Actionsです。公開HTMLの `chameleonjp-commit` と `/release.json` から実際に配備されたSHAを確認できます。
+
+`/suraimusaiban/` でのサブディレクトリ配信を標準にしています。正式URL、OGP、X投稿、保存画像は同じURLを使います。SNS画像は `public/social-card.png`、公開接続情報と版は `config/production.json` です。画像を変えた場合もPRをマージして反映します。
+
+## 共有Supabaseの保存項目
+
+| 保存先 | 項目と公開範囲 |
+| --- | --- |
+| `public.slime_trial_content_versions` | 本文/計算の版、20件ID、選択値、10軸式、判決境界、正式URL、受付状態。公開読取。 |
+| `public.slime_trial_ballots` | 参加者UUID、内容版、20回答、本人票revision、更新日時。本人だけ読取。 |
+| `public.slime_trial_aggregate_snapshots` | 人数、合計点、20件×10選択肢の分布、10軸合計、11判決の分布、集計版、日時。集計だけ公開。 |
+| `slime_trial_private.submissions` | request ID、回答ハッシュ、保存時の本人票revision、日時。非公開。 |
+| `slime_trial_private.submit_limits` | 本人ごとの60秒間の送信回数。非公開。 |
+
+送信APIは `public.slime_trial_submit_ballot` です。元の共有 `private` schemaやランキング表の権限を変更しません。Authは `slime-trial:auth:v1` の保存キーを使い、同じオリジンの他ゲームのセッションと混ぜません。名前や競争順位は記録せず、ランキング用公開キーだけを共用します。
+
+初期の未公開migrationは、本番へ初適用する前に専用名へ変更しています。旧汎用名の本番インストールはありません。共有プロジェクトへ適用したmigration名は `slime_trial_schema`、`slime_trial_submit`、`slime_trial_realtime` です。今後のスキーマ変更は追加migrationにし、適用済みSQLを編集しません。ページの自動配備に本番管理キーは渡しません。スキーマ変更を含むPRでは、対象の追加migrationを先に確認・適用してからマージします。
+
+匿名サインインはSupabaseのAuth設定で有効にする必要があります。公開前に `/auth/v1/settings` の `external.anonymous_users` と実際の投票を確認します。GitHub ActionsのローカルAuth成功だけで本番Authも有効とは判断しません。
 
 ## ローカル起動
 

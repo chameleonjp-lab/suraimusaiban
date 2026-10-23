@@ -165,7 +165,7 @@ export async function loadOwnBallot(
   )
     throw new VoteError("UNAUTHENTICATED");
   const { data, error } = await client
-    .from("ballots")
+    .from("slime_trial_ballots")
     .select("version,answers,revision::text")
     .eq("version", version)
     .eq("participant_id", session.data.session.user.id)
@@ -180,7 +180,7 @@ export async function loadOwnBallot(
 }
 export async function loadSnapshot(version: ContentVersion): Promise<Snapshot> {
   const { data, error } = await requireClient()
-    .from("aggregate_snapshots")
+    .from("slime_trial_aggregate_snapshots")
     .select("payload")
     .eq("version", version)
     .single();
@@ -235,7 +235,7 @@ export function createSubmitter(
       if (attempt && (await participantId()) !== owner)
         throw new VoteError("UNAUTHENTICATED");
       try {
-        const { data, error } = await rpc("submit_ballot", args);
+        const { data, error } = await rpc("slime_trial_submit_ballot", args);
         if (error) throw rpcError(error);
         if ((await participantId()) !== owner)
           throw new VoteError("UNAUTHENTICATED");

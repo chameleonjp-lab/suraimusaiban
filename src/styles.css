@@ -1432,3 +1432,8 @@ main > .status-view {
     flex-wrap: wrap;
   }
 }
+
+.x-share-button { display:inline-flex; align-items:center; justify-content:center; min-height:44px; min-width:44px; max-width:100%; padding:12px 22px; border:1px solid #272b42; border-radius:4px; background:#272b42; color:#fff; font:inherit; font-size:.875rem; text-decoration:none; text-align:center; line-height:1.5; }
+.x-share-button:hover { background:#44415c; }
+.x-share-button:focus-visible { outline:3px solid #655387; outline-offset:4px; }
+.hero-copy > .x-share-button { margin-top:20px; }

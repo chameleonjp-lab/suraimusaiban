@@ -9,6 +9,7 @@ import { renderChart } from "../../charts/chart-svg";
 import { element, renderSnapshot, table } from "../status/status-view";
 import { mountShare } from "../share/share-view";
 import { clearResult, openResult } from "./result-state";
+import { GAME_URL, resultShare, xShareLink } from "../share/x-share";
 export function renderResults(
   container: HTMLElement,
   receipt: SubmitReceipt,
@@ -22,6 +23,7 @@ export function renderResults(
     element("h1", "今回、あなたが下した判決", "section-heading"),
     element("h2", verdict.label),
   );
+  header.append(xShareLink("今回の判決をXでシェア", resultShare(individual)));
   const total = element("strong", signedNumber(individual.total));
   total.dataset.testid = "individual-total";
   const totalLine = element("p", "合計点 ");
@@ -99,11 +101,7 @@ export function renderResults(
   comparison.append(snapshot);
   const share = element("section", undefined, "panel");
   container.replaceChildren(header, share, answers, axes, comparison);
-  const stopShare = mountShare(
-    share,
-    session,
-    `${location.origin}${location.pathname}`,
-  );
+  const stopShare = mountShare(share, session, GAME_URL);
   return () => {
     stopShare();
     clearResult();

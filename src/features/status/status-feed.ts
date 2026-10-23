@@ -65,7 +65,7 @@ export function watchSnapshot(
       {
         event: "*",
         schema: "public",
-        table: "aggregate_snapshots",
+        table: "slime_trial_aggregate_snapshots",
         filter: `version=eq.${version}`,
       },
       queue,

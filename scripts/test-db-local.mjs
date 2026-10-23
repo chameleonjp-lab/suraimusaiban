@@ -170,7 +170,7 @@ if (action === "reset") {
   const c = await connect();
   try {
     await c.query(
-      "drop schema public cascade; drop schema private cascade; create schema public authorization postgres; grant usage on schema public to anon, authenticated;",
+      "drop schema public cascade; drop schema if exists slime_trial_private cascade; create schema public authorization postgres; grant usage on schema public to anon, authenticated;",
     );
   } finally {
     await c.end();
