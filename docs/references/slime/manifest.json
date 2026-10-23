@@ -1,0 +1,42 @@
+{
+  "source": "User attachments, 2026-10-23",
+  "processing": "Original JPEG bytes, renamed only",
+  "images": [
+    {
+      "file": "slime-front.jpeg",
+      "original_filename": "74D3BAC0-0358-486F-ACC6-EE8EDC7DB39D.jpeg",
+      "role": "正面寄り",
+      "width": 1122,
+      "height": 1402,
+      "bytes": 196995,
+      "sha256": "4a074a909fcbcd5eb014f0deb5c0937382677c51433c14e02d8e5a43d2249e40"
+    },
+    {
+      "file": "slime-rear.jpeg",
+      "original_filename": "E7924B39-6B5C-49BA-8B3A-7BDB6AC2F6A4.jpeg",
+      "role": "背面",
+      "width": 1122,
+      "height": 1402,
+      "bytes": 214086,
+      "sha256": "a637415eb0c1fcc8402175e2c777b1258449ca6992e41eed5c4e256ca1dee607"
+    },
+    {
+      "file": "slime-side.jpeg",
+      "original_filename": "B6F92720-F172-4EEE-BBAC-47BDC3CCC354.jpeg",
+      "role": "側面寄り",
+      "width": 1122,
+      "height": 1402,
+      "bytes": 207406,
+      "sha256": "93006b9ce758573030ca15bd691409da260fa832911cf59d6bd96a4b936c1012"
+    },
+    {
+      "file": "slime-reference-sheet.jpeg",
+      "original_filename": "547D689A-4805-4522-BFA2-361A71B32709.jpeg",
+      "role": "多方向・部位詳細",
+      "width": 1122,
+      "height": 1402,
+      "bytes": 340287,
+      "sha256": "c14594536f6a720cd2bf860341287a9350278f3700b5693629aba5cf391e9a0f"
+    }
+  ]
+}
