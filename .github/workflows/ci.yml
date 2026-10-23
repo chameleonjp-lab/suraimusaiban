@@ -1,0 +1,43 @@
+name: Verify slime trial
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run typecheck
+      - run: npm test
+      - run: python3 scripts/validate-docs.py
+      - name: Start isolated real Auth and PostgreSQL services
+        run: |
+          node scripts/test-db-local.mjs start
+          node scripts/test-db-local.mjs migrate
+      - run: npm run test:db
+      - name: Connected browser flow and production build
+        run: |
+          set -a
+          . /tmp/slime-trial-db/public.env
+          set +a
+          export SLIME_DISABLE_HMR=1
+          npm run build
+          npx playwright test
+      - uses: actions/upload-artifact@v6
+        if: failure()
+        with:
+          name: browser-failures
+          path: test-results/
+      - name: Stop disposable local services
+        if: always()
+        run: node scripts/test-db-local.mjs stop

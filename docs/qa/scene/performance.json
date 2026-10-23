@@ -1,0 +1,131 @@
+{
+  "date": "2026-10-23T13:13:07.996Z",
+  "browser": "156.0.8078.4",
+  "platform": "Linux managed container / Chromium ANGLE SwiftShader; concurrent development activity; not iPhone hardware",
+  "viewport": {
+    "width": 390,
+    "height": 320
+  },
+  "samples": [
+    {
+      "quality": "standard",
+      "run": 1,
+      "durationMs": 60051.500000000044,
+      "frames": 2135,
+      "fps": 35.552817165266454,
+      "p50Ms": 16.700000000000728,
+      "p95Ms": 66.69999999999709,
+      "maxMs": 733.2,
+      "resources": {
+        "triangles": 15878,
+        "calls": 31,
+        "geometries": 31,
+        "textures": 1,
+        "programs": 6,
+        "pixelRatio": 1,
+        "width": 390,
+        "height": 320
+      }
+    },
+    {
+      "quality": "standard",
+      "run": 2,
+      "durationMs": 60000.60000000009,
+      "frames": 2498,
+      "fps": 41.632917004163225,
+      "p50Ms": 16.69999999999709,
+      "p95Ms": 50,
+      "maxMs": 133.29999999998836,
+      "resources": {
+        "triangles": 15878,
+        "calls": 31,
+        "geometries": 31,
+        "textures": 1,
+        "programs": 6,
+        "pixelRatio": 1,
+        "width": 390,
+        "height": 320
+      }
+    },
+    {
+      "quality": "standard",
+      "run": 3,
+      "durationMs": 60005.20000000013,
+      "frames": 2471,
+      "fps": 41.17976442041681,
+      "p50Ms": 16.70000000001164,
+      "p95Ms": 50,
+      "maxMs": 150,
+      "resources": {
+        "triangles": 15878,
+        "calls": 31,
+        "geometries": 31,
+        "textures": 1,
+        "programs": 6,
+        "pixelRatio": 1,
+        "width": 390,
+        "height": 320
+      }
+    },
+    {
+      "quality": "low",
+      "run": 1,
+      "durationMs": 60013.9,
+      "frames": 3133,
+      "fps": 52.204572607345966,
+      "p50Ms": 16.69999999999709,
+      "p95Ms": 33.399999999999636,
+      "maxMs": 99.90000000000146,
+      "resources": {
+        "triangles": 8586,
+        "calls": 31,
+        "geometries": 31,
+        "textures": 1,
+        "programs": 6,
+        "pixelRatio": 1,
+        "width": 390,
+        "height": 320
+      }
+    },
+    {
+      "quality": "low",
+      "run": 2,
+      "durationMs": 60011.400000000096,
+      "frames": 3143,
+      "fps": 52.37338239067902,
+      "p50Ms": 16.69999999999709,
+      "p95Ms": 33.39999999999418,
+      "maxMs": 66.69999999999709,
+      "resources": {
+        "triangles": 8586,
+        "calls": 31,
+        "geometries": 31,
+        "textures": 1,
+        "programs": 6,
+        "pixelRatio": 1,
+        "width": 390,
+        "height": 320
+      }
+    },
+    {
+      "quality": "low",
+      "run": 3,
+      "durationMs": 60010.800000000105,
+      "frames": 3102,
+      "fps": 51.690695674778446,
+      "p50Ms": 16.69999999999709,
+      "p95Ms": 33.39999999999418,
+      "maxMs": 133.29999999998836,
+      "resources": {
+        "triangles": 8586,
+        "calls": 31,
+        "geometries": 31,
+        "textures": 1,
+        "programs": 6,
+        "pixelRatio": 1,
+        "width": 390,
+        "height": 320
+      }
+    }
+  ]
+}
