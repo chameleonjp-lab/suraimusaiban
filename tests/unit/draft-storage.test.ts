@@ -20,8 +20,8 @@ it('storage refusal keeps a memory draft', () => {
   expect(loadDraft('refused','v1')).toEqual(state);
 });
 it('malformed storage is not restored', () => {
-  values.set('slime-trial:draft:v1:A', JSON.stringify({ participantId: 'A', version:'v1', expectedRevision: '1', currentIndex: 0, draft: { H01: 0 } }));
-  expect(loadDraft('A','v1')).toBeNull();
+  values.set('slime-trial:draft:v1:malformed', JSON.stringify({ participantId: 'malformed', version:'v1', expectedRevision: '1', currentIndex: 0, draft: { H01: 0 } }));
+  expect(loadDraft('malformed','v1')).toBeNull();
 });
 it('quota refusal keeps the newer draft even when reads still work', () => {
   vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => { throw Error('quota'); } });
