@@ -56,7 +56,7 @@ try {
     await page.locator("[data-scene-fallback]").getAttribute("src"),
     `${config.basePath}slime-fallback.webp`,
   );
-  const imageResponse = await page.request.get(`${origin}social-card-v2.png`);
+  const imageResponse = await page.request.get(`${origin}social-card-v3.png`);
   assert.equal(imageResponse.status(), 200);
   const settings = await page.evaluate(
     async ({ supabaseUrl, supabasePublishableKey }) => {
