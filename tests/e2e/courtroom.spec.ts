@@ -9,7 +9,7 @@ for (const viewport of [
     await page.setViewportSize(viewport);
     await page.goto("/");
     await expect(
-      page.getByRole("heading", { name: "その一票で、 運命がゆれる。" }),
+      page.getByRole("heading", { name: "その判断で、 運命がゆれる。" }),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "前回の結果" })).toHaveCount(
       0,

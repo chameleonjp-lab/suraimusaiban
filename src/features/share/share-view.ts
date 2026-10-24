@@ -1,5 +1,10 @@
 import type { ResultSession } from "../../domain/types";
-import { cardDescription, renderCard, type CardKind } from "./card";
+import {
+  availableCardKinds,
+  cardDescription,
+  renderCard,
+  type CardKind,
+} from "./card";
 import { resultShare } from "./x-share";
 export async function shareCard(
   blob: Blob,
@@ -40,9 +45,10 @@ export function mountShare(
     generation = 0;
   const title = node("h2", "今回の結果を、画像で持ち帰る");
   title.className = "section-heading";
+  const kinds = availableCardKinds(session);
   const intro = node(
     "p",
-    "この結果は画面を離れると閉じます。3種類の画像を保存できます。",
+    `この結果は画面を離れると閉じます。${kinds.length}種類の画像を保存できます。${kinds.includes("comparison") ? "" : "この結果の全体集計は準備中のため、比較画像はありません。"}`,
   );
   const select = node("select");
   select.setAttribute("aria-label", "保存する画像");
@@ -51,6 +57,7 @@ export function mountShare(
     ["comparison", "全体との比較"],
     ["verdict", "判決の記録"],
   ]) {
+    if (!kinds.includes(value as CardKind)) continue;
     const option = node("option", label);
     option.value = value;
     select.append(option);

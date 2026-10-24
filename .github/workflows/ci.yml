@@ -20,7 +20,7 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: python3 scripts/validate-docs.py
-      - name: Start isolated real Auth and PostgreSQL services
+      - name: Start isolated PostgreSQL, REST and anonymous submission gateway
         run: |
           node scripts/test-db-local.mjs start
           node scripts/test-db-local.mjs migrate

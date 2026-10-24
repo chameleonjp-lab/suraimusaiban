@@ -1,24 +1,6 @@
 import { test, expect } from "@playwright/test";
 
 async function isolatedApp(page: import("@playwright/test").Page) {
-  await page.route("**/src/features/vote/participant.ts*", (route) =>
-    route.fulfill({
-      contentType: "application/javascript",
-      body: `export async function ensureParticipant(){return {id:window.testOwner,persistent:true};}`,
-    }),
-  );
-  await page.route("**/src/features/vote/vote-api.ts*", (route) =>
-    route.fulfill({
-      contentType: "application/javascript",
-      body: `export class VoteError extends Error {} export async function loadOwnBallot(){return null} export async function loadSnapshot(){throw new Error('unused')} export async function submitBallot(){throw new Error('unused')}`,
-    }),
-  );
-  await page.route("**/src/platform/supabase-client.ts*", (route) =>
-    route.fulfill({
-      contentType: "application/javascript",
-      body: `export const isBackendConfigured=()=>true;export const getSupabaseClient=()=>({auth:{getSession:async()=>({data:{session:{user:{id:window.testOwner}}},error:null})}});`,
-    }),
-  );
   await page.route("**/src/scene/index.ts*", (route) =>
     route.fulfill({
       contentType: "application/javascript",
@@ -33,12 +15,15 @@ async function isolatedApp(page: import("@playwright/test").Page) {
   );
   await page.goto("/");
   await page.evaluate(async () => {
-    (window as any).testOwner = "A";
+    localStorage.setItem("slime-trial:auth:v1", "old-user");
+    localStorage.setItem("slime-trial:draft:v1:A", "old-answers");
+    sessionStorage.setItem("slime-trial:preview-id", "old-preview");
+    localStorage.setItem("other-game:keep", "unchanged");
     const { mountApp } = await import("/src/app.ts");
     mountApp(document.querySelector("#app")!);
   });
 }
-test("identity changes never restore the prior owner draft", async ({
+test("legacy personal state is purged and a new trial never restores a departed draft", async ({
   page,
 }) => {
   await isolatedApp(page);
@@ -47,18 +32,14 @@ test("identity changes never restore the prior owner draft", async ({
     .getByRole("radio", { name: "＋5 強く待遇改善を求める", exact: true })
     .click();
   await page.getByRole("button", { name: "スライム裁判 ホームへ" }).click();
-  await page.evaluate(() => {
-    (window as any).testOwner = "B";
-  });
   await page.getByRole("button", { name: "裁判に参加する" }).click();
   await expect(
     page.getByRole("radio", { name: "＋5 強く待遇改善を求める", exact: true }),
   ).toHaveAttribute("aria-checked", "false");
   expect(
-    await page.evaluate(() =>
-      Object.keys(localStorage).some((key) => key.endsWith(":B")),
-    ),
-  ).toBe(true);
+    await page.evaluate(() => [...Object.keys(localStorage),...Object.keys(sessionStorage)].some(key => key.startsWith("slime-trial:"))),
+  ).toBe(false);
+  expect(await page.evaluate(() => localStorage.getItem("other-game:keep"))).toBe("unchanged");
 });
 test("changed OS reduced-motion applies now and after navigating", async ({
   page,

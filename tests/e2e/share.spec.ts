@@ -22,15 +22,15 @@ test("exports three opaque readable-size PNG cards from the same receipt", async
       version: "v1",
       revision: "7",
       updatedAt: "2026-10-23T10:00:00Z",
-      count: "1",
-      scoreSum: "100",
+      count: "10",
+      scoreSum: "1000",
       caseCounts: Object.fromEntries(
         CASE_ORDER.map((id: string) => [
           id,
           Object.fromEntries(
             [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5].map((s) => [
               s,
-              s === 5 ? "1" : "0",
+              s === 5 ? "10" : "0",
             ]),
           ),
         ]),
@@ -38,12 +38,12 @@ test("exports three opaque readable-size PNG cards from the same receipt", async
       axisSums: Object.fromEntries(
         Object.entries(scoreAnswers(answers).axes).map(([id, value]) => [
           id,
-          String(value),
+          String(Number(value) * 10),
         ]),
       ),
       verdictCounts: Object.fromEntries(
         ["N5", "N4", "N3", "N2", "N1", "Z", "P1", "P2", "P3", "P4", "P5"].map(
-          (v) => [v, v === "P5" ? "1" : "0"],
+          (v) => [v, v === "P5" ? "10" : "0"],
         ),
       ),
     };

@@ -31,7 +31,6 @@ it("copies and freezes the receipt so later mutations cannot change the displaye
   const receipt = {
     ballot: {
       version: "v1",
-      revision: "1",
       answers: Object.fromEntries(ids.map((id) => [id, 5])),
     },
     snapshot: {

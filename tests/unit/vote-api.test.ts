@@ -28,7 +28,6 @@ const zero = (): Snapshot => ({
 const request: SubmitRequest = {
   version: "v1",
   requestId: "66085383-7255-40df-9a2d-3f427f9962b0",
-  expectedRevision: "0",
   answers: Object.fromEntries(CASE_ORDER.map((id) => [id, 1])) as Answers,
 };
 it("accepts zero votes without inventing a verdict", () => {
@@ -43,72 +42,47 @@ it("rejects precision-losing JSON numbers and distribution totals inconsistent w
   expect(() => parseSnapshot({ ...zero(), count: 9007199254740993 })).toThrow();
   expect(() => parseSnapshot({ ...zero(), count: "1" })).toThrow();
 });
-it("lost_response_retries_once with the identical request", async () => {
-  const sent: unknown[] = [];
-  let n = 0;
-  const response = {
-    ballot: { version: "v1", answers: request.answers, revision: "1" },
-    snapshot: zero(),
-  };
-  const submit = createSubmitter(
-    async (_name, args) => {
-      sent.push(args);
-      if (n++ === 0) throw new TypeError("Failed to fetch");
-      return { data: response, error: null };
-    },
-    async () => "a",
-    (value) => value as any,
-  );
-  expect(await submit(request)).toEqual(response);
+it("retries lost responses with identical public-only bytes and builds a local result against pending aggregates", async () => {
+  const sent: {url: string; init: RequestInit}[] = [];
+  const submit = createSubmitter(async (url, init) => {
+    sent.push({ url: String(url), init: init! });
+    if (sent.length === 1) throw new TypeError("response lost");
+    return Response.json({ accepted: true, duplicate: true, snapshot: zero() });
+  }, "https://project.supabase.co/functions/v1/slime-trial-submit", "sb_publishable_public");
+  const receipt = await submit(request);
   expect(sent).toHaveLength(2);
   expect(sent[1]).toEqual(sent[0]);
-  expect((sent[0] as any).p_answers).toHaveLength(20);
+  expect(sent[0].init.headers).toEqual({ "Content-Type": "application/json", apikey: "sb_publishable_public" });
+  expect(JSON.parse(sent[0].init.body as string)).toEqual({version: "v1", requestId: request.requestId, answers: CASE_ORDER.map(caseId => ({caseId,score:1}))});
+  expect(receipt).toEqual({ ballot: {version: "v1", answers:request.answers}, snapshot:zero() });
 });
-it("does not replay pending requests under a replacement identity", async () => {
-  let calls = 0,
-    identityChecks = 0;
-  const submit = createSubmitter(
-    async () => {
-      calls++;
-      throw new TypeError("Failed to fetch");
-    },
-    async () => (++identityChecks === 1 ? "a" : "b"),
-    (value) => value as any,
-  );
-  await expect(submit(request)).rejects.toMatchObject({
-    code: "UNAUTHENTICATED",
-  });
-  expect(calls).toBe(1);
+it("keeps the original request for manual retry after both uncertain attempts", async () => {
+  const bodies: string[] = [];
+  const submit = createSubmitter(async (_url, init) => {
+    bodies.push(init!.body as string);
+    if (bodies.length <= 2) throw Error("offline");
+    return Response.json({accepted:true,duplicate:true,snapshot:zero()});
+  }, "/functions/v1/slime-trial-submit", "public");
+  await expect(submit(request)).rejects.toMatchObject({code:"NETWORK_ERROR"});
+  await submit(request);
+  expect(new Set(bodies).size).toBe(1);
 });
-it("stale revision is never retried as transport error", async () => {
+it("does not retry explicit rate limits or accept malformed gateway responses", async () => {
   let calls = 0;
-  const submit = createSubmitter(
-    async () => {
-      calls++;
-      return {
-        data: null,
-        error: { message: "STALE_REVISION", code: "P0001" },
-      };
-    },
-    async () => "a",
-    (value) => value as any,
-  );
+  const submit = createSubmitter(async () => { calls++; return Response.json({error:"RATE_LIMITED"},{status:429}); }, "/gate", "public");
   await expect(submit(request)).rejects.toBeInstanceOf(VoteError);
   expect(calls).toBe(1);
+  const invalid = createSubmitter(async () => Response.json({accepted:false,snapshot:zero()}), "/gate", "public");
+  await expect(invalid(request)).rejects.toMatchObject({code:"INVALID_RESPONSE"});
 });
-it("rejects a replacement identity even before the first request is sent", async () => {
+it("never retries a request aborted by navigation", async () => {
+  const controller = new AbortController();
   let calls = 0;
-  const submit = createSubmitter(
-    async () => {
-      calls++;
-      return { data: null, error: null };
-    },
-    async () => "B",
-    (value) => value as any,
-    "A",
-  );
-  await expect(submit(request)).rejects.toMatchObject({
-    code: "UNAUTHENTICATED",
-  });
-  expect(calls).toBe(0);
+  const submit = createSubmitter(async () => {
+    calls++;
+    controller.abort();
+    throw new DOMException("Aborted", "AbortError");
+  }, "/gate", "public");
+  await expect(submit(request, controller.signal)).rejects.toMatchObject({name:"AbortError"});
+  expect(calls).toBe(1);
 });

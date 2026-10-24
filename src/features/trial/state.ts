@@ -1,36 +1,18 @@
 import { CASE_ORDER } from "../../domain/content";
 import type {
   Answers,
-  Ballot,
   CaseId,
   ContentVersion,
-  DecimalInteger,
   Draft,
-  Participant,
   Score,
 } from "../../domain/types";
-import { loadDraft } from "../../platform/draft-storage";
 export type TrialState = {
   draft: Draft;
   currentIndex: number;
-  expectedRevision: DecimalInteger;
-  participantId: string;
   version: ContentVersion;
 };
-export function startTrial(
-  participant: Participant,
-  ballot: Ballot | null,
-): TrialState {
-  const version = "v1";
-  return (
-    loadDraft(participant.id, version) ?? {
-      draft: ballot?.version === version ? { ...ballot.answers } : {},
-      currentIndex: 0,
-      expectedRevision: ballot?.version === version ? ballot.revision : "0",
-      participantId: participant.id,
-      version,
-    }
-  );
+export function startTrial(): TrialState {
+  return { draft: {}, currentIndex: 0, version: "v1" };
 }
 export function setAnswer(
   state: TrialState,

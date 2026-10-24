@@ -1,155 +1,46 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import {
-  answers,
-  browser,
-  participant,
-  reset,
-  roleQuery,
-  snapshot,
-  sql,
-  submit,
-} from "./helpers";
-describe("local Supabase access", () => {
+import { browser, reset, roleQuery, snapshot, sql, submit, wire, answers, sourceKey } from "./helpers";
+describe("aggregate privacy boundary", () => {
   beforeEach(reset);
-  it("publishes a complete zero snapshot without creating an anonymous user", async () => {
+  it("allows public complete zero snapshots without Auth", async () => {
     const s = await snapshot();
-    expect(s.count).toBe("0");
-    expect(s.scoreSum).toBe("0");
-    expect(s.revision).toBe("0");
-    expect(Object.keys(s.caseCounts)).toHaveLength(20);
-    expect(Object.keys(s.axisSums)).toHaveLength(10);
-    expect(Object.keys(s.verdictCounts)).toHaveLength(11);
-    expect(
-      Object.values(s.caseCounts)
-        .flatMap((c) => Object.values(c as object))
-        .every((n) => n === "0"),
-    ).toBe(true);
-    expect(Object.values(s.axisSums).every((n) => n === "0")).toBe(true);
-    expect(Object.values(s.verdictCounts).every((n) => n === "0")).toBe(true);
+    expect(s.count).toBe("0"); expect(s.revision).toBe("0"); expect(s.scoreSum).toBe("0");
+    expect(Object.keys(s.caseCounts)).toHaveLength(20); expect(Object.keys(s.axisSums)).toHaveLength(10); expect(Object.keys(s.verdictCounts)).toHaveLength(11);
     expect((await browser().auth.getSession()).data.session).toBeNull();
   });
-  it("denies unauthenticated ballot reads and A reading B; owner can select", async () => {
-    const a = await participant(),
-      b = await participant();
-    expect((await submit(a.client)).error).toBeNull();
-    expect((await browser().from("slime_trial_ballots").select("*")).error).not.toBeNull();
-    expect(
-      (await b.client.from("slime_trial_ballots").select("*").eq("participant_id", a.id))
-        .data,
-    ).toEqual([]);
-    expect((await a.client.from("slime_trial_ballots").select("*")).data).toHaveLength(1);
-  });
-  it("authenticated_rpc_succeeds_direct_dml_denied", async () => {
-    const a = await participant();
-    expect((await submit(a.client)).error).toBeNull();
-    for (const table of [
-      "public.slime_trial_ballots",
-      "public.slime_trial_aggregate_snapshots",
-      "slime_trial_private.submissions",
-      "slime_trial_private.submit_limits",
-    ]) {
-      await expect(
-        roleQuery("authenticated", a.id, `insert into ${table} default values`),
-      ).rejects.toThrow(/permission denied/);
-      await expect(
-        roleQuery("authenticated", a.id, `delete from ${table}`),
-      ).rejects.toThrow(/permission denied/);
-      await expect(
-        roleQuery(
-          "authenticated",
-          a.id,
-          `update ${table} set participant_id=participant_id`.replace(
-            "update public.slime_trial_aggregate_snapshots set participant_id=participant_id",
-            "update public.slime_trial_aggregate_snapshots set revision=revision",
-          ),
-        ),
-      ).rejects.toThrow(/permission denied/);
+  it("allows only service ingestion and denies public DML or private reads", async () => {
+    expect((await submit()).error).toBeNull();
+    for (const role of ["anon", "authenticated"] as const) {
+      await expect(roleQuery(role, null, "select public.slime_trial_collect_response($1,$2,$3,$4)", ["v1", JSON.stringify(wire(answers())), crypto.randomUUID(), sourceKey()])).rejects.toThrow(/permission denied/);
+      await expect(roleQuery(role, null, "select public.slime_trial_collect_response($1,$2,$3,$4,$5)", ["v1", JSON.stringify(wire(answers())), crypto.randomUUID(), sourceKey(), sourceKey(2)])).rejects.toThrow(/permission denied/);
+      await expect(roleQuery(role, null, "select public.slime_trial_collect_response($1,$2,$3,$4,$5,$6)", ["v1", JSON.stringify(wire(answers())), crypto.randomUUID(), sourceKey(), sourceKey(2), sourceKey(3)])).rejects.toThrow(/permission denied/);
+      await expect(roleQuery(role, null, "select public.slime_trial_cleanup_requests()")).rejects.toThrow(/permission denied/);
+      for (const table of ["aggregate_totals", "request_receipts", "request_limits"]) {
+        await expect(roleQuery(role, null, `select * from slime_trial_private.${table}`)).rejects.toThrow(/permission denied/);
+        await expect(roleQuery(role, null, `delete from slime_trial_private.${table}`)).rejects.toThrow(/permission denied/);
+      }
+      for (const table of ["slime_trial_content_versions", "slime_trial_aggregate_snapshots"]) {
+        expect((await roleQuery(role, null, `select * from public.${table}`)).rows.length).toBeGreaterThan(0);
+        for (const statement of [`insert into public.${table} default values`, `delete from public.${table}`, `update public.${table} set ${table.endsWith("snapshots") ? "revision=revision" : "active=active"}`]) {
+          await expect(roleQuery(role, null, statement)).rejects.toThrow(/permission denied/);
+        }
+      }
     }
-    expect(
-      (
-        await a.client.from("slime_trial_ballots").insert({
-          participant_id: a.id,
-          version: "v1",
-          answers: answers(),
-          revision: 1,
-        })
-      ).error,
-    ).not.toBeNull();
-    expect(
-      (
-        await a.client
-          .from("slime_trial_aggregate_snapshots")
-          .update({ revision: 9 })
-          .eq("version", "v1")
-      ).error,
-    ).not.toBeNull();
-    await expect(
-      roleQuery(
-        "authenticated",
-        null,
-        "select public.slime_trial_submit_ballot($1,$2,$3,$4)",
-        ["v1", "[]", crypto.randomUUID(), "0"],
-      ),
-    ).rejects.toThrow("UNAUTHENTICATED");
-    expect(
-      (
-        await a.client
-          .from("slime_trial_content_versions")
-          .update({ active: false })
-          .eq("id", "v1")
-      ).error,
-    ).not.toBeNull();
-    expect(
-      (await a.client.schema("slime_trial_private").from("submissions").select("*")).error,
-    ).not.toBeNull();
-    expect(
-      (
-        await browser().rpc("slime_trial_submit_ballot", {
-          p_version: "v1",
-          p_answers: [],
-          p_request_id: crypto.randomUUID(),
-          p_expected_revision: "0",
-        })
-      ).error,
-    ).not.toBeNull();
   });
-  it("restricts elevation to fixed-path slime_trial_private function and keeps every public table under RLS", async () => {
+  it("removes personal rows and legacy RPCs; ephemeral receipts retain only random UUID and time", async () => {
     const c = await sql();
     try {
-      const functions = await c.query(
-        "select n.nspname,p.proname,p.prosecdef,p.proconfig from pg_proc p join pg_namespace n on n.oid=p.pronamespace where p.proname in ('slime_trial_submit_ballot','apply_ballot')",
-      );
-      expect(
-        functions.rows.find((r) => r.proname === "apply_ballot").prosecdef,
-      ).toBe(true);
-      expect(
-        functions.rows.find((r) => r.proname === "slime_trial_submit_ballot").prosecdef,
-      ).toBe(false);
-      expect(
-        functions.rows.every((r) =>
-          r.proconfig.includes("search_path=pg_catalog"),
-        ),
-      ).toBe(true);
-      const rls = await c.query(
-        "select relrowsecurity from pg_class where oid in ('public.slime_trial_content_versions'::regclass,'public.slime_trial_ballots'::regclass,'public.slime_trial_aggregate_snapshots'::regclass)",
-      );
-      expect(rls.rows.every((r) => r.relrowsecurity)).toBe(true);
-      expect(
-        (
-          await c.query(
-            "select has_function_privilege('anon','slime_trial_private.apply_ballot(text,jsonb,uuid,bigint)','EXECUTE') as allowed",
-          )
-        ).rows[0].allowed,
-      ).toBe(false);
-      expect(
-        (
-          await c.query(
-            "select has_function_privilege('anon','public.slime_trial_submit_ballot(text,jsonb,uuid,bigint)','EXECUTE') as allowed",
-          )
-        ).rows[0].allowed,
-      ).toBe(false);
-    } finally {
-      await c.end();
-    }
+      for (const name of ["public.slime_trial_ballots", "slime_trial_private.submissions", "slime_trial_private.submit_limits"]) expect((await c.query("select to_regclass($1) as oid", [name])).rows[0].oid).toBeNull();
+      for (const name of ["public.slime_trial_submit_ballot(text,jsonb,uuid,bigint)", "slime_trial_private.apply_ballot(text,jsonb,uuid,bigint)"]) expect((await c.query("select to_regprocedure($1) as oid", [name])).rows[0].oid).toBeNull();
+      const columns = (await c.query("select column_name from information_schema.columns where table_schema='slime_trial_private' and table_name='request_receipts' order by ordinal_position")).rows.map(r => r.column_name);
+      expect(columns).toEqual(["request_id", "created_at"]);
+      const tables = (await c.query("select tablename,rowsecurity from pg_tables where schemaname='slime_trial_private' order by tablename")).rows;
+      expect(tables.map(r => r.tablename)).toEqual(["aggregate_totals", "request_limits", "request_receipts"]);
+      expect(tables.every(r => r.rowsecurity)).toBe(true);
+      const functions = (await c.query("select n.nspname,p.proname,p.prosecdef,p.proconfig from pg_proc p join pg_namespace n on n.oid=p.pronamespace where p.proname in ('slime_trial_collect_response','collect_response','slime_trial_cleanup_requests','cleanup_requests')")).rows;
+      expect(functions).toHaveLength(4);
+      expect(functions.every(r => r.proconfig.includes("search_path=pg_catalog"))).toBe(true);
+      expect(functions.filter(r => r.prosecdef).every(r => r.nspname === "slime_trial_private")).toBe(true);
+    } finally { await c.end(); }
   });
 });

@@ -41,3 +41,12 @@ it("returns the save-and-copy fallback when file sharing is unavailable", async 
   ).toBe("fallback");
   vi.unstubAllGlobals();
 });
+
+import { availableCardKinds, renderCard } from "../../src/features/share/card";
+import type { ResultSession } from "../../src/domain/types";
+it("offers personal cards while withholding comparison before the first public batch", async () => {
+  const session = { receipt: { snapshot: { count: "0" } } } as ResultSession;
+  expect(availableCardKinds(session)).toEqual(["personality", "verdict"]);
+  await expect(renderCard("comparison", session, "https://example.com")).rejects.toThrow("集計準備中");
+  expect(availableCardKinds({ receipt: { snapshot: { count: "10" } } } as ResultSession)).toEqual(["personality", "comparison", "verdict"]);
+});

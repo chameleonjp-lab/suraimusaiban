@@ -7,27 +7,23 @@ import {
 } from "../../domain/content";
 import { validateAnswers } from "../../domain/scoring";
 import type {
-  Ballot,
   ContentVersion,
   Snapshot,
   SubmitReceipt,
   SubmitRequest,
 } from "../../domain/types";
-import { getSupabaseClient } from "../../platform/supabase-client";
+import {
+  getSupabaseClient,
+  getSubmissionConfig,
+} from "../../platform/supabase-client";
 
 const messages = {
   INVALID_ANSWERS: "20件の回答を確認してください。",
   VERSION_CHANGED:
-    "内容が更新されたか、投票受付が停止しています。ホームから確認してください。",
-  STALE_REVISION:
-    "別の画面で回答が更新されています。保存済みの回答を確認してください。",
-  REQUEST_ID_REUSED:
-    "送信内容の確認が必要です。回答を確認して新しい送信を開始してください。",
+    "内容が更新されたか、回答受付が停止しています。ホームから確認してください。",
   RATE_LIMITED: "送信が続いています。しばらく待って再度お試しください。",
-  UNAUTHENTICATED:
-    "参加情報が変わったか、確認できません。入力は保存されています。ホームから参加し直してください。",
-  NETWORK_ERROR: "保存の成否を確認できません。同じ送信を再確認してください。",
-  NOT_CONFIGURED: "未送信プレビューです。投票先に接続されていません。",
+  NETWORK_ERROR: "送信の成否を確認できません。同じ送信を再確認してください。",
+  NOT_CONFIGURED: "未送信プレビューです。送信先に接続されていません。",
   INVALID_RESPONSE:
     "集計データを確認できません。時間を置いて更新してください。",
 };
@@ -124,59 +120,26 @@ export function parseSnapshot(input: unknown): Snapshot {
     verdictCounts: verdicts,
   }) as Snapshot;
 }
-function parseBallot(input: unknown): Ballot {
+/** Personal answers come only from the current in-memory request. */
+export function parseReceipt(
+  input: unknown,
+  request: SubmitRequest,
+): SubmitReceipt {
   const raw = record(input);
-  if (raw.version !== CONTENT_VERSION) throw new VoteError("VERSION_CHANGED");
+  if (raw.accepted !== true || typeof raw.duplicate !== "boolean")
+    throw new VoteError("INVALID_RESPONSE");
   return {
-    version: raw.version,
-    answers: validateAnswers(raw.answers),
-    revision: integer(raw.revision),
-  };
-}
-export function parseReceipt(input: unknown): SubmitReceipt {
-  const raw = record(input);
-  const receipt = {
-    ballot: parseBallot(raw.ballot),
+    ballot: {
+      version: request.version,
+      answers: validateAnswers(request.answers),
+    },
     snapshot: parseSnapshot(raw.snapshot),
   };
-  if (
-    receipt.ballot.version !== receipt.snapshot.version ||
-    BigInt(receipt.snapshot.count) === 0n
-  )
-    throw new VoteError("INVALID_RESPONSE");
-  return receipt;
 }
 function requireClient() {
   const client = getSupabaseClient();
   if (!client) throw new VoteError("NOT_CONFIGURED");
   return client;
-}
-export async function loadOwnBallot(
-  version: ContentVersion,
-  expectedParticipantId?: string,
-): Promise<Ballot | null> {
-  const client = requireClient();
-  const session = await client.auth.getSession();
-  if (session.error) throw new VoteError("NETWORK_ERROR");
-  if (
-    !session.data.session ||
-    (expectedParticipantId &&
-      session.data.session.user.id !== expectedParticipantId)
-  )
-    throw new VoteError("UNAUTHENTICATED");
-  const { data, error } = await client
-    .from("slime_trial_ballots")
-    .select("version,answers,revision::text")
-    .eq("version", version)
-    .eq("participant_id", session.data.session.user.id)
-    .maybeSingle()
-    .setHeader("Authorization", `Bearer ${session.data.session.access_token}`);
-  if (error) throw new VoteError("NETWORK_ERROR");
-  const current = await client.auth.getSession();
-  if (current.error) throw new VoteError("NETWORK_ERROR");
-  if (current.data.session?.user.id !== session.data.session.user.id)
-    throw new VoteError("UNAUTHENTICATED");
-  return data ? parseBallot(data) : null;
 }
 export async function loadSnapshot(version: ContentVersion): Promise<Snapshot> {
   const { data, error } = await requireClient()
@@ -187,28 +150,17 @@ export async function loadSnapshot(version: ContentVersion): Promise<Snapshot> {
   if (error) throw new VoteError("NETWORK_ERROR");
   return parseSnapshot(data.payload);
 }
-type Rpc = (
-  name: string,
-  args: Record<string, unknown>,
-) => PromiseLike<{
-  data: unknown;
-  error: { message: string; code?: string } | null;
-}>;
-function rpcError(error: { message: string; code?: string }): VoteError {
-  for (const code of Object.keys(messages) as VoteErrorCode[])
-    if (error.message.includes(code)) return new VoteError(code);
-  if (error.code === "PGRST301" || error.code === "42501")
-    return new VoteError("UNAUTHENTICATED");
-  return new VoteError("NETWORK_ERROR");
-}
-/** Retry only an uncertain transport result, keeping request identity and ballot owner. */
+type Transport = (url: string, init: RequestInit) => Promise<Response>;
+/** Retries uncertain transport once, retaining the exact request body and public key. */
 export function createSubmitter(
-  rpc: Rpc,
-  participantId: () => Promise<string | null>,
-  parse = parseReceipt,
-  expectedParticipantId?: string,
+  transport: Transport,
+  endpoint: string,
+  publicKey: string,
 ) {
-  return async (request: SubmitRequest): Promise<SubmitReceipt> => {
+  return async (
+    request: SubmitRequest,
+    signal?: AbortSignal,
+  ): Promise<SubmitReceipt> => {
     const answers = validateAnswers(request.answers);
     if (request.version !== CONTENT_VERSION)
       throw new VoteError("VERSION_CHANGED");
@@ -218,29 +170,36 @@ export function createSubmitter(
       )
     )
       throw new VoteError("INVALID_ANSWERS");
-    integer(request.expectedRevision);
-    const owner = await participantId();
-    if (!owner || (expectedParticipantId && owner !== expectedParticipantId))
-      throw new VoteError("UNAUTHENTICATED");
-    const args = {
-      p_version: request.version,
-      p_answers: CASE_ORDER.map((caseId) => ({
-        caseId,
-        score: answers[caseId],
-      })),
-      p_request_id: request.requestId,
-      p_expected_revision: request.expectedRevision,
+    const captured = {
+      version: request.version,
+      requestId: request.requestId,
+      answers,
     };
+    const body = JSON.stringify({
+      version: captured.version,
+      requestId: captured.requestId,
+      answers: CASE_ORDER.map((caseId) => ({ caseId, score: answers[caseId] })),
+    });
     for (let attempt = 0; attempt < 2; attempt++) {
-      if (attempt && (await participantId()) !== owner)
-        throw new VoteError("UNAUTHENTICATED");
+      signal?.throwIfAborted();
       try {
-        const { data, error } = await rpc("slime_trial_submit_ballot", args);
-        if (error) throw rpcError(error);
-        if ((await participantId()) !== owner)
-          throw new VoteError("UNAUTHENTICATED");
-        return parse(data);
+        const response = await transport(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", apikey: publicKey },
+          body,
+          credentials: "omit",
+          ...(signal ? { signal } : {}),
+        });
+        const data: unknown = await response.json();
+        if (!response.ok) {
+          const code = record(data).error;
+          if (typeof code === "string" && Object.hasOwn(messages, code))
+            throw new VoteError(code as VoteErrorCode);
+          throw new VoteError("NETWORK_ERROR");
+        }
+        return parseReceipt(data, captured);
       } catch (error) {
+        signal?.throwIfAborted();
         if (error instanceof VoteError && error.code !== "NETWORK_ERROR")
           throw error;
         if (attempt === 1) throw new VoteError("NETWORK_ERROR");
@@ -251,30 +210,13 @@ export function createSubmitter(
 }
 export async function submitBallot(
   request: SubmitRequest,
-  expectedParticipantId?: string,
+  signal?: AbortSignal,
 ): Promise<SubmitReceipt> {
-  const client = requireClient();
-  const captured = await client.auth.getSession();
-  if (captured.error) throw new VoteError("NETWORK_ERROR");
-  const session = captured.data.session;
-  if (
-    !session ||
-    (expectedParticipantId && session.user.id !== expectedParticipantId)
-  )
-    throw new VoteError("UNAUTHENTICATED");
-  // Pin the JWT, not just a preflight identity check. Auth may change between
-  // awaits; this request must never acquire the replacement user's token.
+  const config = getSubmissionConfig();
+  if (!config) throw new VoteError("NOT_CONFIGURED");
   return createSubmitter(
-    (name, args) =>
-      client
-        .rpc(name, args)
-        .setHeader("Authorization", `Bearer ${session.access_token}`),
-    async () => {
-      const { data, error } = await client.auth.getSession();
-      if (error) throw new VoteError("NETWORK_ERROR");
-      return data.session?.user.id ?? null;
-    },
-    parseReceipt,
-    expectedParticipantId ?? session.user.id,
-  )(request);
+    (url, init) => fetch(url, init),
+    config.endpoint,
+    config.publicKey,
+  )(request, signal);
 }
