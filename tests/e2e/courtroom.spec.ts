@@ -1,3 +1,4 @@
+import { chooseScore } from "./slider-helpers";
 import { test, expect } from "@playwright/test";
 for (const viewport of [
   { width: 390, height: 844 },
@@ -26,11 +27,8 @@ for (const viewport of [
 test("paused 3D leaves the trial accessible", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "裁判に参加する" }).click();
-  await page.getByRole("button", { name: "3Dを停止" }).click();
-  await page
-    .getByRole("radio", { name: "−5 強く刑罰を求める", exact: true })
-    .click();
+  await page.getByRole("button", { name: "動きを止める" }).click();
+  await chooseScore(page, -5);
   await expect(
-    page.getByRole("radio", { name: "−5 強く刑罰を求める", exact: true }),
-  ).toHaveAttribute("aria-checked", "true");
+    page.getByRole("slider", { name: "この審理の判断" })).toHaveValue("-5");
 });

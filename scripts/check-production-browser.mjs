@@ -69,6 +69,11 @@ try {
     await page.locator("[data-scene-fallback]").getAttribute("src"),
     `${config.basePath}slime-fallback.webp`,
   );
+  const canvas = page.locator('canvas[data-scene-state="active"]');
+  await canvas.scrollIntoViewIfNeeded();
+  const before = await canvas.screenshot();
+  await page.waitForTimeout(500);
+  assert.equal((await canvas.screenshot()).equals(before), false, "Three.js must render a visibly animated slime");
   const imageUrl = await page.locator('meta[property="og:image"]').getAttribute("content");
   const imageResponse = await page.request.get(new URL(imageUrl).pathname.replace(config.basePath, origin));
   assert.equal(imageResponse.status(), 200);
@@ -91,6 +96,10 @@ try {
   assert.equal(invalid.body.error, "INVALID_ANSWERS");
   await page.getByRole("button", {name:"裁判に参加する"}).click();
   await page.getByTestId("case-number").waitFor();
+  const slider = page.getByRole("slider", {name:"この審理の判断"});
+  assert.equal(await slider.inputValue(), "0");
+  await slider.press("End");
+  assert.equal(await slider.inputValue(), "5");
   await page.getByRole("button", { name: "みんなの判決" }).click();
   await page
     .getByText("集計を取得しました。", { exact: true })
@@ -110,6 +119,8 @@ try {
     canonical: config.siteUrl,
     productionSubpath: true,
     hostedAggregateLoaded: true,
+    nativeAnswerSlider: true,
+    animatedThreeScene: true,
     published,
     anonymousAuthRequired: false,
     submissionGateRejectsInvalidWithoutWrite: true,

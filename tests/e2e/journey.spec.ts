@@ -25,7 +25,7 @@ test("anonymous responses append without Auth or personal storage; public compar
   expect([bytes.readUInt32BE(16),bytes.readUInt32BE(20)]).toEqual([1080,1350]);
   await page.getByRole("button",{name:"スライム裁判 ホームへ"}).click();
   await page.getByRole("button",{name:"裁判に参加する"}).click();
-  await expect(page.getByRole("radio",{name:"＋5 強く待遇改善を求める",exact:true})).toHaveAttribute("aria-checked","false");
+  await expect(page.getByRole("slider", { name: "この審理の判断" })).toHaveValue("0");
   await answerAll(page,false); const second=await submitCurrent(page);
   expect(second.snapshot.count).toBe("10");
   await expect(page.getByTestId("individual-total")).toHaveText("−100");
@@ -64,7 +64,7 @@ for(const ending of ["reload","back","bfcache","persisted-event"] as const){
     await expect(page.getByTestId("individual-total")).toHaveCount(0);
     await expect(page.getByRole("button",{name:"裁判に参加する"})).toBeVisible();
     await page.getByRole("button",{name:"裁判に参加する"}).click();
-    await expect(page.getByRole("radio",{name:"＋5 強く待遇改善を求める",exact:true})).toHaveAttribute("aria-checked","false");
+    await expect(page.getByRole("slider", { name: "この審理の判断" })).toHaveValue("0");
     expect(await page.evaluate(()=>[...Object.keys(localStorage),...Object.keys(sessionStorage)])).toEqual([]);
     expect((await counts()).internal).toBe("1");
   });

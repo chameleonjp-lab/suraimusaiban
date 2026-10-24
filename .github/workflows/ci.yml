@@ -16,7 +16,7 @@ jobs:
           node-version: "24"
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium webkit
       - run: npm run typecheck
       - run: npm test
       - run: python3 scripts/validate-docs.py
@@ -34,6 +34,13 @@ jobs:
           npm run build
           npm run check:publication
           npx playwright test
+      - name: Verify native slider and animated scene in Safari's WebKit engine
+        run: |
+          set -a
+          . /tmp/slime-trial-db/public.env
+          set +a
+          export SLIME_DISABLE_HMR=1
+          npx playwright test --config=playwright.webkit.config.ts tests/e2e/slider.spec.ts tests/e2e/scene.spec.ts
       - name: Verify production subpath and hosted aggregate without writing votes
         run: |
           npm run build

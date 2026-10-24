@@ -24,12 +24,23 @@ export function mountApp(container: HTMLElement): () => void {
   let generation = 0;
   const motionPreference = matchMedia("(prefers-reduced-motion: reduce)");
   let paused = motionPreference.matches;
-  let manuallyPaused = false;
-  const motionChanged = (event: MediaQueryListEvent) => {
-    paused = event.matches || manuallyPaused;
-    scene?.setReducedMotion(paused);
+  // null follows the initial OS preference; an explicit start/stop wins until departure.
+  let motionOverride: boolean | null = null;
+  const updateMotionControl = () => {
+    const unavailable = container.querySelector<HTMLCanvasElement>("canvas")?.dataset.sceneState === "unavailable";
     const toggle = container.querySelector<HTMLButtonElement>(".scene-toggle");
-    if (toggle) toggle.textContent = paused ? "3Dを再開" : "3Dを停止";
+    if (toggle) toggle.textContent = unavailable ? "3Dを再試行" : paused ? "スライムを動かす" : "動きを止める";
+    const status = container.querySelector<HTMLElement>("[data-motion-status]");
+    if (status) {
+      status.hidden = !unavailable && !paused;
+      status.textContent = unavailable ? "3Dを表示できませんでした。もう一度読み込めます。" :
+        motionOverride === true ? "動きを停止しています。" : "端末の動きを減らす設定に合わせて停止中です。ボタンから動かせます。";
+    }
+  };
+  const motionChanged = (event: MediaQueryListEvent) => {
+    paused = motionOverride ?? event.matches;
+    scene?.setReducedMotion(paused);
+    updateMotionControl();
   };
   motionPreference.addEventListener("change", motionChanged);
   let pending: SubmitRequest | null = null;
@@ -80,14 +91,14 @@ export function mountApp(container: HTMLElement): () => void {
     const main = container.querySelector<HTMLElement>("main")!;
     window.scrollTo({ top: 0, behavior: "instant" });
     if (route === "home") {
-      main.innerHTML = `<section class="home-hero"><div class="hero-copy"><div class="eyebrow"><span class="tiny-rule"></span> A STORY YOU JUDGE</div><p class="hero-preface">被告は、一匹のスライム。</p><h1>その判断で、<br><em>運命がゆれる。</em></h1><p class="hero-description">人を傷つけた。人を救った。<br>けれど、この小さな生きものは何も語らない。<br>20の出来事に、あなたならどんな判決を？</p><div class="hero-cta"><button class="primary-button start-trial">裁判に参加する <span aria-hidden="true">→</span></button><span>全20件 <span aria-hidden="true">·</span> 約10分 <span aria-hidden="true">·</span> 名前の入力不要</span></div></div><div class="hero-visual"><div class="scene-caption-top"><span>王立小法廷</span><span>審理、進行中。</span></div><div class="scene-holder"><canvas aria-label="法廷で静かに待つ一匹のスライム"></canvas><img hidden data-scene-fallback src="${import.meta.env.BASE_URL}slime-fallback.webp" alt="法廷で静かに待つ一匹のスライム"></div><div class="scene-caption-bottom"><span><i class="live-dot"></i> THE DEFENDANT IS SILENT</span><button class="scene-toggle">${paused ? "3Dを再開" : "3Dを停止"}</button></div><span class="visual-index" aria-hidden="true">CASE FILE — 001</span></div></section><section class="story-intro"><div><span class="section-number">01 / THE STORY</span><h2>正しさは、ひとつじゃない。</h2></div><p>同じ事実にも、ふたつの言い分がある。<br>検察と弁護士の声に耳を傾け、あなたの判断を重ねてください。<br>最後に、あなたと世界の判断が並びます。</p></section><section class="process-grid" aria-label="裁判の流れ"><article><span>01</span><h3>20の事実を読む</h3><p>検察と弁護士、それぞれの主張から<br>出来事の向こう側を想像する。</p></article><article><span>02</span><h3>あなたの判断を選ぶ</h3><p>刑罰か、待遇の改善か。<br>その強さまで、あなたに委ねます。</p></article><article><span>03</span><h3>世界の判断と出会う</h3><p>最後に公開された全体の集計と比較。<br>違いから、また物語がはじまる。</p></article></section>${connected ? "" : '<p class="preview-banner"><span>PREVIEW</span> 現在は未接続プレビューです。回答は送信されず、全体集計には加わりません。</p>'}`;
+      main.innerHTML = `<section class="home-hero"><div class="hero-copy"><div class="eyebrow"><span class="tiny-rule"></span> A STORY YOU JUDGE</div><p class="hero-preface">被告は、一匹のスライム。</p><h1>その判断で、<br><em>運命がゆれる。</em></h1><p class="hero-description">人を傷つけた。人を救った。<br>けれど、この小さな生きものは何も語らない。<br>20の出来事に、あなたならどんな判決を？</p><div class="hero-cta"><button class="primary-button start-trial">裁判に参加する <span aria-hidden="true">→</span></button><span>全20件 <span aria-hidden="true">·</span> 約10分 <span aria-hidden="true">·</span> 名前の入力不要</span></div></div><div class="hero-visual"><div class="scene-caption-top"><span>王立小法廷</span><span>審理、進行中。</span></div><div class="scene-holder"><canvas aria-label="法廷で静かに待つ一匹のスライム"></canvas><img hidden data-scene-fallback src="${import.meta.env.BASE_URL}slime-fallback.webp" alt="法廷で静かに待つ一匹のスライム"></div><div class="scene-caption-bottom"><span><i class="live-dot"></i> THE DEFENDANT IS SILENT</span><button class="scene-toggle">${paused ? "スライムを動かす" : "動きを止める"}</button></div><p class="scene-status small muted" data-motion-status role="status" hidden></p><span class="visual-index" aria-hidden="true">CASE FILE — 001</span></div></section><section class="story-intro"><div><span class="section-number">01 / THE STORY</span><h2>正しさは、ひとつじゃない。</h2></div><p>同じ事実にも、ふたつの言い分がある。<br>検察と弁護士の声に耳を傾け、あなたの判断を重ねてください。<br>最後に、あなたと世界の判断が並びます。</p></section><section class="process-grid" aria-label="裁判の流れ"><article><span>01</span><h3>20の事実を読む</h3><p>検察と弁護士、それぞれの主張から<br>出来事の向こう側を想像する。</p></article><article><span>02</span><h3>あなたの判断を選ぶ</h3><p>刑罰か、待遇の改善か。<br>その強さまで、あなたに委ねます。</p></article><article><span>03</span><h3>世界の判断と出会う</h3><p>最後に公開された全体の集計と比較。<br>違いから、また物語がはじまる。</p></article></section>${connected ? "" : '<p class="preview-banner"><span>PREVIEW</span> 現在は未接続プレビューです。回答は送信されず、全体集計には加わりません。</p>'}`;
       main.querySelector<HTMLButtonElement>(".start-trial")!.onclick = () =>
         void go("trial");
       main
         .querySelector(".hero-copy")!
         .append(xShareLink("このゲームをXでシェア", homeShare()));
     } else if (route === "trial") {
-      main.innerHTML = `<div class="trial-layout"><aside class="trial-scene"><div class="eyebrow">THE COURT IS IN SESSION</div><div class="scene-holder"><canvas aria-label="審理を待つ一匹のスライム"></canvas><img hidden data-scene-fallback src="${import.meta.env.BASE_URL}slime-fallback.webp" alt="審理を待つスライム"></div><div class="scene-caption-bottom"><span>被告は、何も語らない。</span><button class="scene-toggle">${paused ? "3Dを再開" : "3Dを停止"}</button></div>${connected ? "" : '<p class="preview-banner">プレビュー · 未送信</p>'}</aside><div class="trial-content"><p role="status">審理記録を開いています…</p></div></div>`;
+      main.innerHTML = `<div class="trial-layout"><aside class="trial-scene"><div class="eyebrow">THE COURT IS IN SESSION</div><div class="scene-holder"><canvas aria-label="審理を待つ一匹のスライム"></canvas><img hidden data-scene-fallback src="${import.meta.env.BASE_URL}slime-fallback.webp" alt="審理を待つスライム"></div><div class="scene-caption-bottom"><span>被告は、何も語らない。</span><button class="scene-toggle">${paused ? "スライムを動かす" : "動きを止める"}</button></div><p class="scene-status small muted" data-motion-status role="status" hidden></p>${connected ? "" : '<p class="preview-banner">プレビュー · 未送信</p>'}</aside><div class="trial-content"><p role="status">審理記録を開いています…</p></div></div>`;
       const target = main.querySelector<HTMLElement>(".trial-content")!;
       setupScene(main, "trial");
       cleanupView = mountTrial(
@@ -110,12 +121,18 @@ export function mountApp(container: HTMLElement): () => void {
   const setupScene = (main: HTMLElement, route: AppRoute) => {
     const canvas = main.querySelector<HTMLCanvasElement>("canvas");
     if (!canvas) return;
+    canvas.hidden = false;
+    delete canvas.dataset.sceneState;
+    const fallback = main.querySelector<HTMLImageElement>("[data-scene-fallback]");
+    if (fallback) fallback.hidden = true;
     const unavailable = () => {
+      canvas.dataset.sceneState = "unavailable";
       canvas.hidden = true;
       const fallback = main.querySelector<HTMLImageElement>(
         "[data-scene-fallback]",
       );
       if (fallback) fallback.hidden = false;
+      updateMotionControl();
     };
     try {
       scene = mountScene(canvas, unavailable);
@@ -126,13 +143,25 @@ export function mountApp(container: HTMLElement): () => void {
     } catch {
       unavailable();
     }
+    updateMotionControl();
     const toggle = main.querySelector<HTMLButtonElement>(".scene-toggle");
     if (toggle)
       toggle.onclick = () => {
+        if (canvas.dataset.sceneState === "unavailable") {
+          scene?.dispose();
+          scene = null;
+          // A failed/lost WebGL context cannot resume. Give Three.js a fresh canvas.
+          const replacement = canvas.cloneNode(false) as HTMLCanvasElement;
+          canvas.replaceWith(replacement);
+          paused = false;
+          motionOverride = false;
+          setupScene(main, route);
+          return;
+        }
         paused = !paused;
-        manuallyPaused = paused;
+        motionOverride = paused;
         scene?.setReducedMotion(paused);
-        toggle.textContent = paused ? "3Dを再開" : "3Dを停止";
+        updateMotionControl();
       };
   };
   const submit = async (

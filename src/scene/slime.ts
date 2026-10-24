@@ -315,12 +315,12 @@ export function createSlime(quality: SceneQuality): SlimeRig {
   let disposed = false;
   function applyPose(t: number) {
     const wave = Math.sin((t * Math.PI * 2) / 5.2);
-    bodyGroup.scale.set(1 - wave * 0.016, 1 + wave * 0.025, 1 - wave * 0.012);
-    bodyGroup.rotation.y = Math.sin(t * 0.73) * 0.009;
-    crest.rotation.y = Math.sin(t * 0.91) * 0.022;
-    tail.rotation.y = Math.sin(t * 1.01 - 0.7) * 0.025;
+    bodyGroup.scale.set(1 - wave * 0.035, 1 + wave * 0.055, 1 - wave * 0.025);
+    bodyGroup.rotation.y = Math.sin(t * 0.73) * 0.025;
+    crest.rotation.y = Math.sin(t * 0.91) * 0.06;
+    tail.rotation.y = Math.sin(t * 1.01 - 0.7) * 0.055;
     drops.forEach((d, i) => {
-      d.position.y = dropY[i] + Math.sin(t * 1.3 + i * 1.8) * 0.035;
+      d.position.y = dropY[i] + Math.sin(t * 1.3 + i * 1.8) * 0.085;
       d.rotation.y = Math.sin(t * 0.8 + i) * 0.16;
     });
   }

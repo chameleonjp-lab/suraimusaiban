@@ -1,3 +1,4 @@
+import { chooseScore } from "./slider-helpers";
 import { expect, type Page } from "@playwright/test";
 import { randomBytes, randomUUID } from "node:crypto";
 import { Client } from "pg";
@@ -36,7 +37,7 @@ export async function begin(page:Page) {
 }
 export async function answerAll(page:Page, positive=true) {
   for(let i=0;i<20;i++) {
-    await page.getByRole("radio",{name:positive?"＋5 強く待遇改善を求める":"−5 強く刑罰を求める",exact:true}).click();
+    await chooseScore(page, positive ? 5 : -5);
     await page.getByRole("button",{name:i===19?"回答を確認する":"次の審理へ"}).click();
   }
 }
