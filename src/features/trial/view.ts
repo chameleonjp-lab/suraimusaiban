@@ -6,7 +6,6 @@ import {
   setAnswer,
   type TrialState,
 } from "./state";
-import { isDraftPersistent, saveDraft } from "../../platform/draft-storage";
 export const scoreLabel = (value: number): string =>
   value < 0 ? `−${Math.abs(value)}` : `＋${value}`;
 const choices: Record<Score, string> = {
@@ -41,13 +40,12 @@ export function mountTrial(
         },
       ).join(
         "",
-      )}</ol><p class="privacy-note">名前・メールアドレスの入力はありません。同じ匿名IDで再提出すると、以前の一票を置き換えます。</p><button class="primary-button full" data-submit ${canSubmit(state) ? "" : "disabled"}>${options.preview ? "未送信の結果を見る" : "この判断を提出する"} <span aria-hidden="true">→</span></button><button class="text-button full" data-back>審理に戻る</button></section>`;
+      )}</ol><p class="privacy-note">名前や個人の回答は保存しません。今回の回答を匿名で集計に加えます。回答し直した分は、新しい回答として加わります。</p><button class="primary-button full" data-submit ${canSubmit(state) ? "" : "disabled"}>${options.preview ? "未送信の結果を見る" : "この判断を提出する"} <span aria-hidden="true">→</span></button><button class="text-button full" data-back>審理に戻る</button></section>`;
       container.querySelectorAll<HTMLButtonElement>("[data-case]").forEach(
         (button) =>
           (button.onclick = () => {
             state = { ...state, currentIndex: Number(button.dataset.case) };
             reviewing = false;
-            saveDraft(state);
             render(true);
           }),
       );
@@ -79,7 +77,7 @@ export function mountTrial(
         )
         .join(
           "",
-        )}</div><div class="selection-note" aria-live="polite">${selected === undefined ? "まだ選ばれていません" : `${scoreLabel(selected)} · ${choices[selected]}`}</div></fieldset><div class="trial-actions"><button class="secondary-button" data-prev ${state.currentIndex === 0 ? "disabled" : ""}>← 前へ</button><button class="primary-button" data-next>${state.currentIndex === 19 ? "回答を確認する" : "次の審理へ"} <span aria-hidden="true">→</span></button></div><div class="trial-bottom"><span class="small muted">${isDraftPersistent() ? "回答はこの端末に下書き保存されます" : "保存できません。再読み込みで下書きが失われます"}</span><button class="text-button" data-review>回答一覧</button></div></section>`;
+        )}</div><div class="selection-note" aria-live="polite">${selected === undefined ? "まだ選ばれていません" : `${scoreLabel(selected)} · ${choices[selected]}`}</div></fieldset><div class="trial-actions"><button class="secondary-button" data-prev ${state.currentIndex === 0 ? "disabled" : ""}>← 前へ</button><button class="primary-button" data-next>${state.currentIndex === 19 ? "回答を確認する" : "次の審理へ"} <span aria-hidden="true">→</span></button></div><div class="trial-bottom"><span class="small muted">回答は画面を離れると消えます</span><button class="text-button" data-review>回答一覧</button></div></section>`;
       container.querySelectorAll<HTMLButtonElement>("[data-score]").forEach(
         (button) =>
           (button.onclick = () => {
@@ -88,7 +86,6 @@ export function mountTrial(
               c.id,
               Number(button.dataset.score) as Score,
             );
-            saveDraft(state);
             render();
             container
               .querySelector<HTMLButtonElement>(
@@ -103,14 +100,12 @@ export function mountTrial(
             ...state,
             currentIndex: Math.max(0, state.currentIndex - 1),
           };
-          saveDraft(state);
           render(true);
         };
       container.querySelector<HTMLButtonElement>("[data-next]")!.onclick =
         () => {
           if (state.currentIndex === 19) reviewing = true;
           else state = { ...state, currentIndex: state.currentIndex + 1 };
-          saveDraft(state);
           render(true);
         };
       container.querySelector<HTMLButtonElement>("[data-review]")!.onclick =
@@ -142,7 +137,6 @@ export function mountTrial(
       heading?.scrollIntoView({ block: "start", behavior: "instant" });
     }
   };
-  saveDraft(state);
   render();
   return () => container.replaceChildren();
 }

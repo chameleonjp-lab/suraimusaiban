@@ -75,29 +75,22 @@ export function renderSnapshot(
   const header = element("section", undefined, "panel");
   header.append(
     element("p", "CURRENT VERDICT", "eyebrow"),
-    element("h2", verdict?.label ?? "判決待ち", "section-heading"),
+    element("h2", verdict?.label ?? "集計準備中", "section-heading"),
   );
   const heading = header.querySelector("h2")!;
   heading.dataset.testid = "aggregate-verdict";
+  if (!verdict) {
+    header.append(element("p", "公開集計は10回答ごとに更新します。最初の公開まで、平均・割合・判断傾向は集計準備中です。"));
+    container.append(header);
+    return;
+  }
   const time = element("p", snapshotTime(snapshot));
   time.dataset.testid = "snapshot-time";
   header.append(
     time,
-    element(
-      "p",
-      `有効投票数 ${snapshot.count}票 ・ 内容 ${snapshot.version} ・ 集計版 ${snapshot.revision}`,
-    ),
+    element("p", `公開回答数 ${snapshot.count}回 ・ 内容 ${snapshot.version} ・ 集計版 ${snapshot.revision}`),
+    element("p", "公開集計は10回答ごとに更新します。"),
   );
-  if (!verdict) {
-    header.append(
-      element(
-        "p",
-        "まだ投票がありません。平均・割合・判断傾向・小説は、最初の提出が届いてから表示します。",
-      ),
-    );
-    container.append(header);
-    return;
-  }
   const average = element(
     "strong",
     formatRatio(snapshot.scoreSum, snapshot.count),
@@ -109,7 +102,7 @@ export function renderSnapshot(
     averageLine,
     element(
       "p",
-      "全体の判決は平均点から決まります。最も票の多い判決とは限りません。",
+      "全体の判決は平均点から決まります。最も回答の多い判決とは限りません。",
     ),
   );
   container.append(header);
@@ -122,7 +115,7 @@ export function renderSnapshot(
   distribution.append(distributionChart);
   distribution.append(
     table(
-      ["判決", "票数", "割合"],
+      ["判決", "回答数", "割合"],
       VERDICTS.map((v) => [
         v.label,
         snapshot.verdictCounts[v.id],
@@ -133,7 +126,7 @@ export function renderSnapshot(
   );
   distribution.append(
     table(
-      ["区分", "票数", "割合"],
+      ["区分", "回答数", "割合"],
       categoryDistribution(snapshot).map((c) => [
         c.label,
         c.count,
@@ -172,10 +165,6 @@ export function renderSnapshot(
       "これは今回の20件に表れた判断傾向です。人格・能力・善悪の診断や順位ではありません。50は心理的な中立ではなく、極端な2件の回答が相殺されても50になります。",
     ),
   );
-  if (snapshot.count === "1" && personal)
-    axes.append(
-      element("p", "投票はあなたの1票です。個人と全体の線は重なります。"),
-    );
   container.append(axes);
   const cases = element("section", undefined, "panel");
   cases.append(
@@ -195,7 +184,7 @@ export function renderSnapshot(
     );
     detail.append(
       table(
-        ["選択値", "票数", "割合"],
+        ["選択値", "回答数", "割合"],
         SCORES.map((score) => [
           score > 0 ? `＋${score}` : `−${Math.abs(score)}`,
           snapshot.caseCounts[id][score],

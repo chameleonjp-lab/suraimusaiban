@@ -69,7 +69,7 @@ test("nineteen answers cannot submit and controls remain usable at enlarged text
   }
 });
 
-test("draft survives reload and remains explicit about submission", async ({
+test("draft is forgotten on reload and no previous response can be opened", async ({
   page,
 }) => {
   await page
@@ -78,6 +78,6 @@ test("draft survives reload and remains explicit about submission", async ({
   await page.reload();
   await expect(
     page.getByRole("radio", { name: "−3 やや刑罰を求める", exact: true }),
-  ).toHaveAttribute("aria-checked", "true");
+  ).toHaveAttribute("aria-checked", "false");
   await expect(page.getByRole("button", { name: "前回の結果" })).toHaveCount(0);
 });

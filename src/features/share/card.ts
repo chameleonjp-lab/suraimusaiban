@@ -12,6 +12,11 @@ import {
   type ChartModel,
 } from "../../charts/chart-model";
 export type CardKind = "personality" | "comparison" | "verdict";
+export function availableCardKinds(session: ResultSession): readonly CardKind[] {
+  return BigInt(session.receipt.snapshot.count) > 0n
+    ? ["personality", "comparison", "verdict"]
+    : ["personality", "verdict"];
+}
 export function cardSize(kind: CardKind): { width: number; height: number } {
   return { width: 1080, height: kind === "verdict" ? 1920 : 1350 };
 }
@@ -180,13 +185,15 @@ export function cardDescription(
       : kind === "comparison"
         ? "あなたと全体の比較"
         : "今回の判決の記録";
-  return `${title}。${snapshotTime(snapshot)}。内容 ${snapshot.version}。集計版 ${snapshot.revision}。${kind === "verdict" ? CASE_ORDER.map((id, i) => `${String(i + 1).padStart(2, "0")} ${CASES.find((c) => c.id === id)!.title} ${signedNumber(session.receipt.ballot.answers[id])} 累積${signedNumber(session.individual.cumulative[i])}`).join("、") : AXES.map((axis) => `${axis.id} ${axis.label}: あなた ${session.individual.axes[axis.id]}${kind === "comparison" ? `、全体 ${formatRatio(snapshot.axisSums[axis.id], snapshot.count, false)}` : ""}`).join("、")}。`;
+  return `${title}。${BigInt(snapshot.count) > 0n ? `公開集計 ${snapshotTime(snapshot)}。集計版 ${snapshot.revision}` : "全体の集計準備中"}。内容 ${snapshot.version}。${kind === "verdict" ? CASE_ORDER.map((id, i) => `${String(i + 1).padStart(2, "0")} ${CASES.find((c) => c.id === id)!.title} ${signedNumber(session.receipt.ballot.answers[id])} 累積${signedNumber(session.individual.cumulative[i])}`).join("、") : AXES.map((axis) => `${axis.id} ${axis.label}: あなた ${session.individual.axes[axis.id]}${kind === "comparison" ? `、全体 ${formatRatio(snapshot.axisSums[axis.id], snapshot.count, false)}` : ""}`).join("、")}。`;
 }
 export async function renderCard(
   kind: CardKind,
   session: ResultSession,
   gameUrl: string,
 ): Promise<Blob> {
+  if (!availableCardKinds(session).includes(kind))
+    throw new Error("集計準備中のため比較画像は作成できません。");
   if (document.fonts) {
     await document.fonts.load(`26px ${font}`, "裁判判断傾向");
     await document.fonts.ready;
@@ -240,7 +247,7 @@ export async function renderCard(
       );
       text(
         ctx,
-        `${snapshot.count}票 ・ ${snapshotTime(snapshot)}`,
+        `公開回答数 ${snapshot.count}回 ・ ${snapshotTime(snapshot)}`,
         72,
         825,
         24,
@@ -297,8 +304,8 @@ export async function renderCard(
     text(
       ctx,
       kind === "comparison"
-        ? "本人の票を含む提出時点の固定集計。"
-        : `${snapshotTime(snapshot)} ・ 各項目は2件の回答から計算`,
+        ? "最後の公開集計との比較。今回の回答を含まない場合があります。"
+        : "各項目は今回の2件の回答から計算",
       72,
       1254,
       22,
@@ -377,12 +384,20 @@ export async function renderCard(
       1792,
       24,
     );
-    text(ctx, snapshotTime(snapshot), 72, 1830, 24);
+    text(
+      ctx,
+      BigInt(snapshot.count) > 0n
+        ? `公開集計 ${snapshotTime(snapshot)}`
+        : "全体の公開集計は準備中",
+      72,
+      1830,
+      24,
+    );
   }
   line(ctx, 72, canvas.height - 66, 1008, canvas.height - 66);
   text(
     ctx,
-    `内容 ${snapshot.version} ・ 集計版 ${snapshot.revision}`,
+    `内容 ${snapshot.version}${BigInt(snapshot.count) > 0n ? ` ・ 公開集計版 ${snapshot.revision}` : " ・ 集計準備中"}`,
     72,
     canvas.height - 31,
     19,

@@ -62,8 +62,6 @@ jobs:
           npm run build
           npm run check:publication
       - name: Confirm hosted readiness before publication
-        env:
-          REQUIRE_ANONYMOUS: "1"
         run: |
           npx playwright install --with-deps chromium
           node scripts/check-production-browser.mjs
@@ -74,3 +72,8 @@ jobs:
       - name: Publish
         id: deployment
         uses: actions/deploy-pages@v5
+      - name: Verify published page, public aggregate and anonymous gate
+        env:
+          CHECK_PUBLISHED: "1"
+          EXPECTED_DEPLOY_COMMIT: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: node scripts/check-production-browser.mjs

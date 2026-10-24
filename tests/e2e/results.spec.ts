@@ -21,7 +21,7 @@ test("receipt results show all answers, fixed-order accumulation and paired axis
       version: "v1",
       revision: "7",
       updatedAt: "2026-10-23T10:00:00Z",
-      count: "1",
+      count: "10",
       scoreSum: "0",
       caseCounts: Object.fromEntries(
         CASE_ORDER.map((id: string) => [
@@ -29,7 +29,7 @@ test("receipt results show all answers, fixed-order accumulation and paired axis
           Object.fromEntries(
             [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5].map((s) => [
               s,
-              s === answers[id] ? "1" : "0",
+              s === answers[id] ? "10" : "0",
             ]),
           ),
         ]),
@@ -37,12 +37,12 @@ test("receipt results show all answers, fixed-order accumulation and paired axis
       axisSums: Object.fromEntries(
         Object.entries(scoreAnswers(answers).axes).map(([id, value]) => [
           id,
-          String(value),
+          String(Number(value) * 10),
         ]),
       ),
       verdictCounts: Object.fromEntries(
         ["N5", "N4", "N3", "N2", "N1", "Z", "P1", "P2", "P3", "P4", "P5"].map(
-          (v) => [v, v === "Z" ? "1" : "0"],
+          (v) => [v, v === "Z" ? "10" : "0"],
         ),
       ),
     };
@@ -69,7 +69,7 @@ test("receipt results show all answers, fixed-order accumulation and paired axis
     page.getByTestId("axis-results").locator("tbody tr"),
   ).toHaveCount(10);
   await expect(
-    page.getByText("投票はあなたの1票です。個人と全体の線は重なります。"),
+    page.getByText("公開回答数 10回"),
   ).toBeVisible();
   await expect(page.getByTestId("snapshot-time")).toContainText(
     "2026/10/23 19:00:00 JST",
@@ -93,15 +93,15 @@ test("snapshot_stays_fixed", async ({ page }) => {
       version: "v1",
       revision: "1",
       updatedAt: "2026-10-23T10:00:00Z",
-      count: "1",
-      scoreSum: "100",
+      count: "10",
+      scoreSum: "1000",
       caseCounts: Object.fromEntries(
         CASE_ORDER.map((id: string) => [
           id,
           Object.fromEntries(
             [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5].map((s) => [
               s,
-              s === 5 ? "1" : "0",
+              s === 5 ? "10" : "0",
             ]),
           ),
         ]),
@@ -109,12 +109,12 @@ test("snapshot_stays_fixed", async ({ page }) => {
       axisSums: Object.fromEntries(
         Object.entries(scoreAnswers(answers).axes).map(([id, value]) => [
           id,
-          String(value),
+          String(Number(value) * 10),
         ]),
       ),
       verdictCounts: Object.fromEntries(
         ["N5", "N4", "N3", "N2", "N1", "Z", "P1", "P2", "P3", "P4", "P5"].map(
-          (v) => [v, v === "P5" ? "1" : "0"],
+          (v) => [v, v === "P5" ? "10" : "0"],
         ),
       ),
     };

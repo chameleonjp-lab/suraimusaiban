@@ -10,11 +10,10 @@ export type Draft = Partial<Record<CaseId, Score>>;
 export type AxisValues = Readonly<Record<AxisId, number>>;
 export type DecimalInteger = string; // JSONで精度を失わない10進整数。境界判定はBigInt
 export type ContentVersion = string; // 初回 'v1'、意味・式の変更時は新しい版
-export type Participant = { id: string; persistent: boolean };
+/** Current response only; never stored or fetched by participant. */
 export type Ballot = {
   version: ContentVersion;
   answers: Answers;
-  revision: DecimalInteger;
 };
 export type IndividualResult = {
   total: number;
@@ -38,7 +37,6 @@ export type SubmitRequest = {
   version: ContentVersion;
   answers: Answers;
   requestId: string;
-  expectedRevision: DecimalInteger; // 初回は '0'
 };
 export type SubmitReceipt = { ballot: Ballot; snapshot: Snapshot };
 export type ResultSession = {

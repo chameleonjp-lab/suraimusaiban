@@ -59,7 +59,7 @@ for (const scenario of [
       renderSnapshot(document.querySelector("#fixture")!, snapshot);
     }, scenario);
     if (scenario === "empty") {
-      await expect(page.getByText("判決待ち", { exact: true })).toBeVisible();
+      await expect(page.getByText("集計準備中", { exact: true })).toBeVisible();
       await expect(page.getByTestId("future-story")).toHaveCount(0);
       await expect(page.getByTestId("radar-chart")).toHaveCount(0);
     }
@@ -96,6 +96,7 @@ test("failed refresh retains the previous values and timestamp", async ({
       contentType: "text/javascript",
       body: `
   const channel={on(){return this},subscribe(callback){callback('CHANNEL_ERROR');return this}};
+  export function getSubmissionConfig(){return null;}
   export function getSupabaseClient(){return {channel(){return channel},removeChannel(){return Promise.resolve()},from(table){if(table!=='slime_trial_aggregate_snapshots')throw new Error('slime_trial_private table');return {select(columns){if(columns!=='payload')throw new Error('slime_trial_private fields');return {eq(column,version){if(column!=='version'||version!=='v1')throw new Error('wrong version');return {single:async()=>{if(window.failRefresh)return {data:null,error:{message:'offline'}};return {data:{payload:window.feedSnapshot},error:null};}}}}}}}};}
  `,
     }),
@@ -113,21 +114,21 @@ test("failed refresh retains the previous values and timestamp", async ({
       version: "v1",
       revision: "77",
       updatedAt: "2026-10-23T10:00:00Z",
-      count: "1",
-      scoreSum: "100",
+      count: "10",
+      scoreSum: "1000",
       caseCounts: Object.fromEntries(
         CASE_ORDER.map((id: string) => [
           id,
           Object.fromEntries(
-            SCORES.map((s: number) => [s, s === 5 ? "1" : "0"]),
+            SCORES.map((s: number) => [s, s === 5 ? "10" : "0"]),
           ),
         ]),
       ),
       axisSums: Object.fromEntries(
-        AXES.map((a: { id: number }) => [a.id, String(individual.axes[a.id])]),
+        AXES.map((a: { id: number }) => [a.id, String(individual.axes[a.id] * 10)]),
       ),
       verdictCounts: Object.fromEntries(
-        VERDICTS.map((v: { id: string }) => [v.id, v.id === "P5" ? "1" : "0"]),
+        VERDICTS.map((v: { id: string }) => [v.id, v.id === "P5" ? "10" : "0"]),
       ),
     };
     document.body.innerHTML = '<main id="fixture"></main>';

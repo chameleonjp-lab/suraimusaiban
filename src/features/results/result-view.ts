@@ -90,10 +90,10 @@ export function renderResults(
   const comparison = element("div");
   comparison.dataset.testid = "comparison";
   comparison.append(
-    element("h2", "提出した時点の全体と比べる", "section-heading"),
+    element("h2", "最後に公開された全体と比べる", "section-heading"),
     element(
       "p",
-      "比較にはあなたの票を含みます。この画面と保存画像の集計は固定されます。",
+      "公開集計は10回答ごとに更新されるため、今回の回答が含まれない場合があります。この画面と保存画像の集計は固定されます。",
     ),
   );
   const snapshot = element("div");

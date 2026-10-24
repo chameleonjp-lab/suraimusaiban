@@ -20,7 +20,7 @@ Three.jsによる3Dアニメ風の法廷と、添付デザインに基づくス�
 python3 scripts/validate-docs.py
 ```
 
-正式な公開先は [GitHub Pages](https://chameleonjp-lab.github.io/suraimusaiban/) です。mainへのPRマージ後、検証に成功すると同じコミットを自動配備します。ランキングと同じSupabaseプロジェクトの専用テーブルで回答と全体集計を管理します。
+正式な公開先は [GitHub Pages](https://chameleonjp-lab.github.io/suraimusaiban/) です。mainへのPRマージ後、検証に成功すると同じコミットを自動配備します。ランキングと同じSupabaseプロジェクトの専用テーブルで、個別回答を残さず全体集計だけを加算します。
 
 ## 起動
 
@@ -31,7 +31,9 @@ npm ci
 npm run dev
 ```
 
-[接続・公開・復旧手順](docs/operations.md)にローカルDBと環境変数の設定を記載しています。秘密キーは不要です。匿名の参加情報と編集中の回答は端末へ保存し、個人結果は現在の画面のメモリだけに保持します。
+[接続・公開・復旧手順](docs/operations.md)にローカルDBと環境変数の設定を記載しています。ブラウザは公開キーだけを使い、Auth登録や匿名サインイン設定は不要です。回答と個人結果は現在の画面のメモリだけに保持し、後日の復元はできません。集計は人数ではなく回答回数で、10回答ごとに公開します。
+
+[匿名・集計加算方式の設計](docs/superpowers/specs/2026-10-24-anonymous-aggregate-design.md)が、2026-10-24に指定された保存・再参加方式です。以前の匿名ID保存・本人票の置換方式を置き換えます。
 
 ## 検証
 
