@@ -1,3 +1,4 @@
+import { chooseScore } from "./slider-helpers";
 import { test, expect } from "@playwright/test";
 
 async function isolatedApp(page: import("@playwright/test").Page) {
@@ -28,14 +29,11 @@ test("legacy personal state is purged and a new trial never restores a departed 
 }) => {
   await isolatedApp(page);
   await page.getByRole("button", { name: "裁判に参加する" }).click();
-  await page
-    .getByRole("radio", { name: "＋5 強く待遇改善を求める", exact: true })
-    .click();
+  await chooseScore(page, 5);
   await page.getByRole("button", { name: "スライム裁判 ホームへ" }).click();
   await page.getByRole("button", { name: "裁判に参加する" }).click();
   await expect(
-    page.getByRole("radio", { name: "＋5 強く待遇改善を求める", exact: true }),
-  ).toHaveAttribute("aria-checked", "false");
+    page.getByRole("slider", { name: "この審理の判断" })).toHaveValue("0");
   expect(
     await page.evaluate(() => [...Object.keys(localStorage),...Object.keys(sessionStorage)].some(key => key.startsWith("slime-trial:"))),
   ).toBe(false);
@@ -50,7 +48,7 @@ test("changed OS reduced-motion applies now and after navigating", async ({
     await page.evaluate(() => (window as any).requestedReducedMotion),
   ).toBe(false);
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await expect(page.getByRole("button", { name: "3Dを再開" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "スライムを動かす" })).toBeVisible();
   await page.getByRole("button", { name: "裁判に参加する" }).click();
   await expect(page.getByTestId("case-number")).toHaveText("審理 01");
   expect(
@@ -62,20 +60,20 @@ test("an explicit pause survives OS preference changes and navigation", async ({
 }) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await isolatedApp(page);
-  await page.getByRole("button", { name: "3Dを停止" }).click();
+  await page.getByRole("button", { name: "動きを止める" }).click();
   await page.emulateMedia({ reducedMotion: "reduce" });
   await expect
     .poll(() => page.evaluate(() => (window as any).requestedReducedMotion))
     .toBe(true);
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.waitForTimeout(100);
-  await expect(page.getByRole("button", { name: "3Dを再開" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "スライムを動かす" })).toBeVisible();
   expect(
     await page.evaluate(() => (window as any).requestedReducedMotion),
   ).toBe(true);
   await page.getByRole("button", { name: "裁判に参加する" }).click();
   await expect(page.getByTestId("case-number")).toHaveText("審理 01");
-  await expect(page.getByRole("button", { name: "3Dを再開" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "スライムを動かす" })).toBeVisible();
   expect(
     await page.evaluate(() => (window as any).requestedReducedMotion),
   ).toBe(true);

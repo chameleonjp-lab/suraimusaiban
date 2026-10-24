@@ -38,6 +38,6 @@ test("leaving during an in-flight submission does not retry or recover the depar
   await expect(page.getByRole("button",{name:"裁判に参加する"})).toBeVisible();
   await expect(page.getByTestId("individual-total")).toHaveCount(0);
   await page.getByRole("button",{name:"裁判に参加する"}).click();
-  await expect(page.getByRole("radio",{name:"＋5 強く待遇改善を求める",exact:true})).toHaveAttribute("aria-checked","false");
+  await expect(page.getByRole("slider", { name: "この審理の判断" })).toHaveValue("0");
   expect(requests).toBe(1);expect((await counts()).internal).toBe("1");
 });

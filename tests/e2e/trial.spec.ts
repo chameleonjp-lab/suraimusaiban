@@ -1,3 +1,4 @@
+import { chooseScore } from "./slider-helpers";
 import { expect, test } from "@playwright/test";
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
@@ -10,18 +11,10 @@ test("all twenty cases allow both signs, review and explicit unsent confirmation
     await expect(page.getByTestId("case-number")).toHaveText(
       `審理 ${String(index + 1).padStart(2, "0")}`,
     );
-    await page
-      .getByRole("radio", { name: "−5 強く刑罰を求める", exact: true })
-      .click();
-    await page
-      .getByRole("radio", { name: "＋5 強く待遇改善を求める", exact: true })
-      .click();
+    await chooseScore(page, -5);
+    await chooseScore(page, 5);
     await expect(
-      page.getByRole("radio", {
-        name: "＋5 強く待遇改善を求める",
-        exact: true,
-      }),
-    ).toHaveAttribute("aria-checked", "true");
+      page.getByRole("slider", { name: "この審理の判断" })).toHaveValue("5");
     if (index < 19)
       await page.getByRole("button", { name: "次の審理へ" }).click();
   }
@@ -38,9 +31,7 @@ test("nineteen answers cannot submit and controls remain usable at enlarged text
   page,
 }) => {
   for (let index = 0; index < 19; index++) {
-    await page
-      .getByRole("radio", { name: "＋1 わずかに待遇改善を求める", exact: true })
-      .click();
+    await chooseScore(page, 1);
     await page.getByRole("button", { name: "次の審理へ" }).click();
   }
   await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
@@ -72,12 +63,9 @@ test("nineteen answers cannot submit and controls remain usable at enlarged text
 test("draft is forgotten on reload and no previous response can be opened", async ({
   page,
 }) => {
-  await page
-    .getByRole("radio", { name: "−3 やや刑罰を求める", exact: true })
-    .click();
+  await chooseScore(page, -3);
   await page.reload();
   await expect(
-    page.getByRole("radio", { name: "−3 やや刑罰を求める", exact: true }),
-  ).toHaveAttribute("aria-checked", "false");
+    page.getByRole("slider", { name: "この審理の判断" })).toHaveValue("0");
   await expect(page.getByRole("button", { name: "前回の結果" })).toHaveCount(0);
 });

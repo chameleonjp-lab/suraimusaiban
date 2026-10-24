@@ -576,43 +576,10 @@ canvas {
 .choice-directions > span:last-child {
   color: #67768a;
 }
-.score-grid {
-  display: grid;
-  grid-template-columns: repeat(10, minmax(0, 1fr));
-  gap: 4px;
-  margin-top: 10px;
-}
-.score-button {
-  min-width: 44px;
-  min-height: 48px;
-  width: 100%;
-  padding: 3px;
-  font-family: Georgia, serif;
-  font-size: 1rem;
-  background: #f0eaf0;
-  color: #6e5a80;
-  border: 1px solid #dfd5e2;
-  border-radius: 3px;
-}
-.score-button.plus {
-  background: #eaf0f2;
-  border-color: #d5dee5;
-  color: #586d85;
-}
-.score-button.selected {
-  background: #7c6a94;
-  color: #fff;
-  border-color: #7c6a94;
-  box-shadow: 0 0 0 2px #7c6a9440;
-}
-.score-button.plus.selected {
-  background: #687d96;
-  border-color: #687d96;
-  box-shadow: 0 0 0 2px #687d9640;
-}
 .selection-note {
-  font-size: 0.73rem;
-  color: #766a82;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #625576;
   min-height: 42px;
   padding: 9px 0 0;
 }
@@ -742,9 +709,6 @@ main > .status-view {
   max-width: 100%;
 }
 @media (min-width: 1200px) {
-  .score-grid {
-    gap: 6px;
-  }
   .trial-panel {
     padding: 35px;
   }
@@ -765,16 +729,6 @@ main > .status-view {
   }
   .trial-panel {
     padding: 25px;
-  }
-  .score-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 7px;
-  }
-  .score-button {
-    min-height: 48px;
-  }
-  .score-button:nth-child(5) {
-    margin-right: 0;
   }
   .trial-scene .scene-holder {
     height: 250px;
@@ -998,13 +952,6 @@ main > .status-view {
     font-size: 0.76rem;
     line-height: 1.95;
   }
-  .score-grid {
-    gap: 7px;
-  }
-  .score-button {
-    font-size: 1.1rem;
-    min-height: 46px;
-  }
   .choice-directions {
     font-size: 0.64rem;
   }
@@ -1067,12 +1014,6 @@ main > .status-view {
   }
   .panel {
     padding: 19px 13px;
-  }
-  .score-grid {
-    gap: 5px;
-  }
-  .score-button {
-    min-width: 44px;
   }
 }
 @media (orientation: landscape) and (max-height: 600px) {
@@ -1180,9 +1121,6 @@ main > .status-view {
 .hero-copy h1 {
   white-space: normal;
 }
-.score-grid {
-  grid-template-columns: repeat(auto-fit, minmax(max(44px, 2.8rem), 1fr));
-}
 .trial-actions {
   flex-wrap: wrap;
 }
@@ -1199,28 +1137,10 @@ main > .status-view {
 .hero-description {
   overflow-wrap: anywhere;
 }
-.score-grid {
-  grid-template-columns: 1fr;
-  gap: 8px;
-}
-.score-side {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(max(44px, 2.8rem), 1fr));
-  gap: 7px;
-  min-width: 0;
-}
 .hero-visual .scene-holder {
   border-radius: 40% 40% 0 0;
 }
-@media (min-width: 1200px) {
-  .score-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-  .score-side {
-    gap: 5px;
-  }
-}
+
 .route-result,
 .route-status {
   max-width: 960px;
@@ -1437,3 +1357,51 @@ main > .status-view {
 .x-share-button:hover { background:#44415c; }
 .x-share-button:focus-visible { outline:3px solid #655387; outline-offset:4px; }
 .hero-copy > .x-share-button { margin-top:20px; }
+
+/* A single native track keeps touch dragging and keyboard behavior consistent. */
+.score-slider-wrap { margin: 18px 0 8px; }
+.score-slider {
+  appearance: none;
+  -webkit-appearance: none;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 48px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: pan-y;
+}
+.score-slider::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #a58bb7 0%, #e6dfea 48%, #dddfe5 52%, #879daf 100%);
+}
+.score-slider::-moz-range-track {
+  height: 8px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #a58bb7 0%, #e6dfea 48%, #dddfe5 52%, #879daf 100%);
+}
+.score-slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 28px;
+  height: 28px;
+  margin-top: -10px;
+  border: 3px solid #fffdf8;
+  border-radius: 50%;
+  background: #625576;
+  box-shadow: 0 1px 6px #30253c40;
+}
+.score-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border: 3px solid #fffdf8;
+  border-radius: 50%;
+  background: #625576;
+  box-shadow: 0 1px 6px #30253c40;
+}
+.score-slider:focus-visible { outline: 2px solid #625576; outline-offset: 3px; border-radius: 8px; }
+.slider-scale { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: .75rem; }
+.scene-status { color: #595362; margin: 8px 0 0; line-height: 1.7; }

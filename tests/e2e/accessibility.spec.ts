@@ -17,7 +17,7 @@ async function noOverflow(page: Page, screen: string) {
 
 async function accessibleControls(page: Page) {
   const targets = await page
-    .locator("button,select,a[href],summary")
+    .locator("button,input[type=range],select,a[href],summary")
     .evaluateAll((elements) =>
       elements
         .filter((element) => element.getClientRects().length > 0)
@@ -125,18 +125,15 @@ for (const viewport of [
       page.getByRole("group", { name: "あなたは、どう判断しますか。" }),
     ).toBeVisible();
     await expect(
-      page.getByRole("radiogroup", { name: "この審理の判断" }),
+      page.getByRole("slider", { name: "この審理の判断" }),
     ).toBeVisible();
-    await expect(page.getByRole("radio")).toHaveCount(10);
-    await expect(page.getByRole("button", { name: "3Dを再開" })).toBeVisible();
+    await expect(page.getByRole("slider")).toHaveCount(1);
+    await expect(page.getByRole("button", { name: "3Dを再試行" })).toBeVisible();
     for (let i = 0; i < 20; i++) {
-      const choice = page.getByRole("radio", {
-        name: "＋5 強く待遇改善を求める",
-        exact: true,
-      });
+      const choice = page.getByRole("slider", { name: "この審理の判断" });
       await choice.focus();
-      await page.keyboard.press("Space");
-      await expect(choice).toHaveAttribute("aria-checked", "true");
+      await page.keyboard.press("End");
+      await expect(choice).toHaveValue("5");
       const next = page.getByRole("button", {
         name: i === 19 ? "回答を確認する" : "次の審理へ",
       });

@@ -12,6 +12,18 @@ function pose(root: THREE.Group) {
 }
 
 describe("neutral slime animation", () => {
+  it("shows a visible breathing change at mobile scale", () => {
+    const rig = createSlime("low");
+    const body = rig.root.getObjectByName("body")!;
+    rig.update(0.02, 1.3, false);
+    rig.root.updateMatrixWorld(true);
+    const high = new THREE.Box3().setFromObject(body).getSize(new THREE.Vector3()).y;
+    rig.update(0.02, 3.9, false);
+    rig.root.updateMatrixWorld(true);
+    const low = new THREE.Box3().setFromObject(body).getSize(new THREE.Vector3()).y;
+    expect(high - low).toBeGreaterThan(0.15);
+    rig.dispose();
+  });
   it("keeps the current pose when dt is zero", () => {
     const rig = createSlime("low");
     rig.update(0.02, 2.1, false);
