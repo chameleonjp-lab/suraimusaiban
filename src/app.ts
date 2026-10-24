@@ -153,8 +153,6 @@ export function mountApp(container: HTMLElement): () => void {
           // A failed/lost WebGL context cannot resume. Give Three.js a fresh canvas.
           const replacement = canvas.cloneNode(false) as HTMLCanvasElement;
           canvas.replaceWith(replacement);
-          paused = false;
-          motionOverride = false;
           setupScene(main, route);
           return;
         }

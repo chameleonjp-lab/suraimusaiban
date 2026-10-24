@@ -14,7 +14,33 @@ test("explicit start overrides reduced motion through later OS changes and navig
   await page.getByRole("button", { name: "裁判に参加する" }).click();
   await canvas.scrollIntoViewIfNeeded();
   await expect(page.getByRole("button", { name: "動きを止める", exact: true })).toBeVisible();
+  const resumed = await canvas.screenshot();
+  await expect.poll(async () => (await canvas.screenshot()).equals(resumed)).toBe(false);
 });
+
+for (const initial of ["manual", "system"] as const) {
+  test(`${initial} pause survives WebGL retry without granting animation permission`, async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: initial === "system" ? "reduce" : "no-preference" });
+    await page.goto("/");
+    if (initial === "manual") await page.getByRole("button", { name: "動きを止める", exact: true }).click();
+    await page.locator("canvas").evaluate(canvas => canvas.dispatchEvent(new Event("webglcontextlost", { cancelable: true })));
+    await page.getByRole("button", { name: "3Dを再試行", exact: true }).click();
+    await expect(page.getByRole("button", { name: "スライムを動かす", exact: true })).toBeVisible();
+    const canvas = page.locator('canvas[data-scene-state="active"]');
+    const still = await canvas.screenshot();
+    await page.waitForTimeout(350);
+    expect((await canvas.screenshot()).equals(still)).toBe(true);
+    if (initial === "manual") {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await page.emulateMedia({ reducedMotion: "no-preference" });
+    }
+    await page.getByRole("button", { name: "裁判に参加する" }).click();
+    await expect(page.getByRole("button", { name: "スライムを動かす", exact: true })).toBeVisible();
+    const trialStill = await canvas.screenshot();
+    await page.waitForTimeout(350);
+    expect((await canvas.screenshot()).equals(trialStill)).toBe(true);
+  });
+}
 
 test("WebGL retry replaces the failed canvas and starts a real animated scene", async ({ page }) => {
   await page.addInitScript(() => {
